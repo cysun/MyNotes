@@ -1,0 +1,20 @@
+﻿@model NoteInputModel
+
+<nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Notes</a></li>
+        <li class="breadcrumb-item active">New</li>
+    </ol>
+</nav>
+
+<form method="post">
+    <div class="form-group">
+        <input asp-for="Subject" class="form-control" required>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="IsPrivate" class="form-check-input" />
+        <label asp-for="IsPrivate" class="form-check-label"></label>
+    </div>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="ml-2 btn btn-primary">Create</button>
+</form>

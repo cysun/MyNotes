@@ -31,9 +31,19 @@ namespace MyNotes.Controllers
             return View(_notesService.SearchNotes(term));
         }
 
+        [HttpGet]
         public IActionResult Create()
         {
-            var note = new Note();
+            return View(new NoteInputModel());
+        }
+
+        [HttpPost]
+        public IActionResult Create(NoteInputModel input)
+        {
+            if (!ModelState.IsValid) return View(input);
+
+            var note = _mapper.Map<Note>(input);
+            note.Viewed = note.Updated = note.Created = DateTime.Now;
             _notesService.AddNote(note);
             _notesService.SaveChanges();
 
@@ -97,9 +107,14 @@ namespace MyNotes.Models
     {
         public int Id { get; set; }
 
+        [Required]
         [MaxLength(80)]
+        [Display(Name = "Subject", Prompt = "Subject")]
         public string Subject { get; set; }
 
         public string Content { get; set; }
+
+        [Display(Name = "Private")]
+        public bool IsPrivate { get; set; }
     }
 }

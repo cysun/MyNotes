@@ -10,6 +10,7 @@ namespace MyNotes.Models
     {
         public int Id { get; set; }
 
+        [Required]
         [MaxLength(80)]
         public string Subject { get; set; }
 
