@@ -1,45 +1,109 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Logging;
+using MyNotes.Services;
+using Serilog;
 
 namespace MyNotes
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public IWebHostEnvironment Environment { get; }
+        public IConfiguration Configuration { get; }
+
+        public Startup(IWebHostEnvironment environment, IConfiguration configuration)
         {
+            Environment = environment;
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+
+            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "Cookies";
+                options.DefaultChallengeScheme = "oidc";
+            })
+            .AddCookie("Cookies")
+            .AddOpenIdConnect("oidc", options =>
+            {
+                options.Authority = Configuration["OIDC:Authority"];
+                options.ClientId = Configuration["OIDC:ClientId"];
+                options.ClientSecret = Configuration["OIDC:ClientSecret"];
+                options.ResponseType = "code";
+                options.Scope.Add("email");
+                options.Scope.Add("cysun-mynotes-claims");
+                options.SaveTokens = true;
+                options.GetClaimsFromUserInfoEndpoint = true;
+
+                options.Events = new OpenIdConnectEvents
+                {
+                    OnRemoteFailure = context =>
+                    {
+                        context.Response.Redirect("/");
+                        context.HandleResponse();
+                        return Task.FromResult(0);
+                    }
+                };
+
+                if (Environment.IsDevelopment())
+                {
+                    options.RequireHttpsMetadata = false;
+                }
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("IsOwner", policy => policy.RequireUserName(Configuration["Application:PathBase"]));
+            });
+
+            services.AddAutoMapper(config => config.AddProfile<MapperProfile>());
+
+            services.AddScoped<NotesService>();
+            services.AddScoped<TagRecordsService>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
-            if (env.IsDevelopment())
+            if (Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                IdentityModelEventSource.ShowPII = true;
             }
             else
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            app.UseSerilogRequestLogging();
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
+            app.UsePathBase(Configuration["Application:PathBase"]);
             app.UseStaticFiles();
-
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

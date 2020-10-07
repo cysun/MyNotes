@@ -1,0 +1,12 @@
+﻿@model Note
+
+<nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Notes</a></li>
+        <li class="breadcrumb-item active">@Model.Subject</li>
+    </ol>
+</nav>
+
+<div class="px-3">
+    @Html.Raw(Model.Content)
+</div>

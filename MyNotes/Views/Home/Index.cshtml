@@ -1,8 +1,44 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+﻿<div class="row">
+    <div class="col-md-7">
+        <h4 class="text-center">Recent Notes</h4>
+        @if (ViewBag.Notes.Count == 0)
+        {
+            <p class="text-center">No notes were created or viewed recently.</p>
+        }
+        else
+        {
+            <table class="table">
+                <tbody>
+                    @foreach (var note in ViewBag.Notes)
+                    {
+                        <tr>
+                            <td><a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a></td>
+                            <td>@note.Viewed.ToString("d")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+    <div class="col-md-5">
+        <h4 class="text-center">Recent Tags</h4>
+        @if (ViewBag.TagRecords.Count == 0)
+        {
+            <p class="text-center">No tags were created or used recently.</p>
+        }
+        else
+        {
+            <table class="table">
+                <tbody>
+                    @foreach (var tagRecord in ViewBag.TagRecords)
+                    {
+                        <tr>
+                            <td>@tagRecord.Label</td>
+                            <td>@tagRecord.Updated.ToString("d")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
 </div>

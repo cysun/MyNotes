@@ -6,32 +6,30 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MyNotes.Models;
+using MyNotes.Services;
 
 namespace MyNotes.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly NotesService _notesService;
+        private readonly TagRecordsService _tagRecorsService;
+
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(NotesService notesService, TagRecordsService tagRecordsService,
+            ILogger<HomeController> logger)
         {
+            _notesService = notesService;
+            _tagRecorsService = tagRecordsService;
             _logger = logger;
         }
 
         public IActionResult Index()
         {
+            ViewBag.Notes = _notesService.GetRecentNotes();
+            ViewBag.TagRecords = _tagRecorsService.GetRecentTagRecords();
             return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

@@ -1,10 +1,41 @@
 {
-  "Logging": {
-    "LogLevel": {
+  "Application": {
+    "Url": "http://localhost:5004",
+    "PathBase": "/",
+    "Owner": "cysun@localhost.localdomain"
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=mynotes;Username=cysun;Password=abcd"
+  },
+  "OIDC": {
+    "Authority": "http://localhost:5000",
+    "ClientId": "cysun-mynotes",
+    "ClientSecret": "abcd"
+  },
+  "Serilog": {
+    "Using": [
+      "Serilog.Sinks.File"
+    ],
+    "WriteTo": [
+      {
+        "Name": "File",
+        "Args": {
+          "path": "D:/Temp/MyNotes/log.txt",
+          "rollingInterval": "Day",
+          "retainedFileCountLimit": null
+        }
+      }
+    ],
+    "MinimumLevel": {
       "Default": "Information",
-      "Microsoft": "Warning",
-      "Microsoft.Hosting.Lifetime": "Information"
-    }
+      "Override": {
+        "Microsoft": "Warning",
+        "System": "Warning"
+      }
+    },
+    "Enrich": [
+      "FromLogContext"
+    ]
   },
   "AllowedHosts": "*"
 }

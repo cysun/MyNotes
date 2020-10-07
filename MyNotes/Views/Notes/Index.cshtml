@@ -1,0 +1,23 @@
+﻿@model List<Note>
+
+<form method="get" class="form-inline">
+    <div class="input-group mb-2 mr-sm-2">
+        <input type="text" class="form-control" id="term" name="term">
+    </div>
+    <button type="submit" class="btn btn-primary mb-2">Search</button>
+</form>
+
+@if (Model.Count > 0)
+{
+    <table class="table">
+        <tbody>
+            @foreach (var note in Model)
+            {
+                <tr>
+                    <td>@note.Subject</td>
+                    <td>@note.Viewed.ToString("G")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
