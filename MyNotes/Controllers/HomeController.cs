@@ -31,5 +31,10 @@ namespace MyNotes.Controllers
             ViewBag.TagRecords = _tagRecorsService.GetRecentTagRecords();
             return View();
         }
+
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
     }
 }

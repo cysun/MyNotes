@@ -11,8 +11,6 @@ CREATE TABLE "Notes" (
     "IsPrivate" boolean NOT NULL,
     "Created" timestamp without time zone NOT NULL,
     "Updated" timestamp without time zone NOT NULL,
-    "Viewed" timestamp without time zone NOT NULL,
-    "ViewCount" integer NOT NULL,
     "Deleted" boolean NOT NULL,
     CONSTRAINT "PK_Notes" PRIMARY KEY ("Id")
 );
@@ -34,5 +32,5 @@ CREATE TABLE "Tag" (
 );
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20201007163514_InitialSchema', '3.1.8');
+VALUES ('20201007175328_InitialSchema', '3.1.8');
 

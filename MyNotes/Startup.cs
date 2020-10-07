@@ -43,7 +43,11 @@ namespace MyNotes
                 options.DefaultScheme = "Cookies";
                 options.DefaultChallengeScheme = "oidc";
             })
-            .AddCookie("Cookies")
+            .AddCookie(opt =>
+            {
+                opt.AccessDeniedPath = "/Home/AccessDenied";
+            })
+            //.AddCookie("Cookies")
             .AddOpenIdConnect("oidc", options =>
             {
                 options.Authority = Configuration["OIDC:Authority"];
@@ -51,7 +55,6 @@ namespace MyNotes
                 options.ClientSecret = Configuration["OIDC:ClientSecret"];
                 options.ResponseType = "code";
                 options.Scope.Add("email");
-                options.Scope.Add("cysun-mynotes-claims");
                 options.SaveTokens = true;
                 options.GetClaimsFromUserInfoEndpoint = true;
 
@@ -73,7 +76,8 @@ namespace MyNotes
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("IsOwner", policy => policy.RequireUserName(Configuration["Application:PathBase"]));
+                options.AddPolicy("IsOwner", policy =>
+                    policy.RequireClaim("email", Configuration["Application:Owner"]));
             });
 
             services.AddAutoMapper(config => config.AddProfile<MapperProfile>());

@@ -1,4 +1,8 @@
-﻿<div class="row">
+﻿@inject Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService
+@{
+    bool isOwner = (await authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded;
+}
+<div class="row">
     <div class="col-md-7">
         <h4 class="text-center">Recent Notes</h4>
         @if (ViewBag.Notes.Count == 0)
@@ -11,10 +15,13 @@
                 <tbody>
                     @foreach (var note in ViewBag.Notes)
                     {
-                        <tr>
-                            <td><a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a></td>
-                            <td>@note.Viewed.ToString("d")</td>
-                        </tr>
+                        @if (isOwner || !note.IsPrivate)
+                        {
+                            <tr>
+                                <td><a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a></td>
+                                <td>@note.Updated.ToString("d")</td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>

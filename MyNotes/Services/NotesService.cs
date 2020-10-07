@@ -18,9 +18,9 @@ namespace MyNotes.Services
 
         public List<Note> GetRecentNotes()
         {
-            return _db.Notes.Where(n => DateTime.Now.AddDays(-21) < n.Viewed)
+            return _db.Notes.Where(n => DateTime.Now.AddDays(-21) < n.Updated)
                 .Include(n => n.Tags)
-                .OrderByDescending(n => n.Viewed)
+                .OrderByDescending(n => n.Updated)
                 .ToList();
         }
 
@@ -49,7 +49,7 @@ namespace MyNotes.Services
         public List<Note> SearchNotesByTag(string label)
         {
             return _db.Notes.Where(n => n.Tags.Any(t => t.Label == label))
-                .OrderByDescending(n => n.Viewed)
+                .OrderByDescending(n => n.Updated)
                 .ToList();
         }
 

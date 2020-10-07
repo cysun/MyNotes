@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MyNotes.Models;
@@ -11,17 +12,21 @@ using MyNotes.Services;
 
 namespace MyNotes.Controllers
 {
+    [Authorize(Policy = "IsOwner")]
     public class NotesController : Controller
     {
         private readonly NotesService _notesService;
 
+        private readonly IAuthorizationService _authorizationService;
+
         private readonly IMapper _mapper;
         private readonly ILogger<NotesController> _logger;
 
-        public NotesController(NotesService notesService,
+        public NotesController(NotesService notesService, IAuthorizationService authorizationService,
             IMapper mapper, ILogger<NotesController> logger)
         {
             _notesService = notesService;
+            _authorizationService = authorizationService;
             _mapper = mapper;
             _logger = logger;
         }
@@ -43,20 +48,21 @@ namespace MyNotes.Controllers
             if (!ModelState.IsValid) return View(input);
 
             var note = _mapper.Map<Note>(input);
-            note.Viewed = note.Updated = note.Created = DateTime.Now;
+            note.Updated = note.Created = DateTime.Now;
             _notesService.AddNote(note);
             _notesService.SaveChanges();
 
             return RedirectToAction("Edit", new { id = note.Id });
         }
 
-        public IActionResult View(int id)
+        [AllowAnonymous]
+        public async Task<IActionResult> ViewAsync(int id)
         {
             var note = _notesService.GetNote(id);
             if (note == null) return NotFound();
 
-            if (string.IsNullOrWhiteSpace(note.Subject))
-                return RedirectToAction("Edit", new { id });
+            if (note.IsPrivate && !(await _authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded)
+                return Forbid();
 
             return View(note);
         }
@@ -93,7 +99,7 @@ namespace MyNotes.Controllers
             else
                 _logger.LogWarning("Unrecognized field: {field}", field);
 
-            note.Viewed = note.Updated = DateTime.Now;
+            note.Updated = DateTime.Now;
             _notesService.SaveChanges();
 
             return Ok();

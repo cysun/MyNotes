@@ -22,9 +22,6 @@ namespace MyNotes.Models
 
         public DateTime Created { get; set; } = DateTime.Now;
         public DateTime Updated { get; set; } = DateTime.Now;
-        public DateTime Viewed { get; set; } = DateTime.Now;
-
-        public int ViewCount { get; set; }
 
         public bool Deleted { get; set; }
     }
