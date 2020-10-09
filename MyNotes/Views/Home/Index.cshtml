@@ -7,7 +7,7 @@
         <h4 class="text-center">Recent Notes</h4>
         @if (ViewBag.Notes.Count == 0)
         {
-            <p class="text-center">No notes were created or viewed recently.</p>
+            <p class="text-center">No notes were created or updated recently.</p>
         }
         else
         {
@@ -29,7 +29,7 @@
     </div>
     <div class="col-md-5">
         <h4 class="text-center">Recent Tags</h4>
-        @if (ViewBag.TagRecords.Count == 0)
+        @if (ViewBag.Tags.Count == 0)
         {
             <p class="text-center">No tags were created or used recently.</p>
         }
@@ -37,11 +37,11 @@
         {
             <table class="table">
                 <tbody>
-                    @foreach (var tagRecord in ViewBag.TagRecords)
+                    @foreach (var tagRecord in ViewBag.Tags)
                     {
                         <tr>
                             <td>@tagRecord.Label</td>
-                            <td>@tagRecord.Updated.ToString("d")</td>
+                            <td>@tagRecord.LastUsed.ToString("d")</td>
                         </tr>
                     }
                 </tbody>

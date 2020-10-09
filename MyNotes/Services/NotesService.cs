@@ -16,17 +16,17 @@ namespace MyNotes.Services
             _db = db;
         }
 
-        public List<Note> GetRecentNotes()
+        public List<Note> GetRecentNotes(bool publicOnly = false)
         {
-            return _db.Notes.Where(n => DateTime.Now.AddDays(-21) < n.Updated)
-                .Include(n => n.Tags)
+            return _db.Notes.Where(n => DateTime.Now.AddDays(-21) < n.Updated && (n.IsPublic || n.IsPublic == publicOnly))
+                .Include(n => n.NoteTags)
                 .OrderByDescending(n => n.Updated)
                 .ToList();
         }
 
         public Note GetNote(int id)
         {
-            return _db.Notes.Where(n => n.Id == id).Include(n => n.Tags).SingleOrDefault();
+            return _db.Notes.Where(n => n.Id == id).Include(n => n.NoteTags).SingleOrDefault();
         }
 
         public void AddNote(Note note) => _db.Notes.Add(note);
@@ -43,12 +43,12 @@ namespace MyNotes.Services
         {
             if (string.IsNullOrWhiteSpace(term)) return new List<Note>();
 
-            return _db.Notes.FromSqlRaw("SELECT * FROM \"SearchEvents\"({0})", term).ToList();
+            return _db.Notes.FromSqlRaw("SELECT * FROM \"SearchNotes\"({0})", term).ToList();
         }
 
         public List<Note> SearchNotesByTag(string label)
         {
-            return _db.Notes.Where(n => n.Tags.Any(t => t.Label == label))
+            return _db.Notes.Where(n => n.NoteTags.Any(t => t.Label == label))
                 .OrderByDescending(n => n.Updated)
                 .ToList();
         }

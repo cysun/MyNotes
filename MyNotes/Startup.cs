@@ -83,7 +83,7 @@ namespace MyNotes
             services.AddAutoMapper(config => config.AddProfile<MapperProfile>());
 
             services.AddScoped<NotesService>();
-            services.AddScoped<TagRecordsService>();
+            services.AddScoped<TagsService>();
         }
 
         public void Configure(IApplicationBuilder app)

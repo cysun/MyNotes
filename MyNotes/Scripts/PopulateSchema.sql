@@ -1,15 +1,17 @@
-﻿ALTER TABLE "Tag" ADD CONSTRAINT "FK_Tag_TagRecords_Label"
-    FOREIGN KEY ("Label") REFERENCES "TagRecords" ("Label") ON DELETE CASCADE;
+﻿ALTER TABLE "NoteTags" ADD CONSTRAINT "FK_NoteTags_Tags_Label"
+    FOREIGN KEY ("Label") REFERENCES "Tags" ("Label") ON DELETE CASCADE;
+
+-- FTS on Notes --
 
 ALTER TABLE "Notes" ADD COLUMN tsv tsvector;
 
 CREATE INDEX "NotesTsIndex" ON "Notes" USING GIN(tsv);
 
-CREATE FUNCTION "NotesTsTriggerFunction"() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION "NotesTsTriggerFunction"() RETURNS TRIGGER AS $$
 BEGIN
-    new.tsv := setweight(to_tsvector(new."Subject"), 'A') ||
-               setweight(to_tsvector(new."Content"), 'D');
-    RETURN new;
+    NEW.tsv := setweight(to_tsvector(coalesce(NEW."Subject",'')), 'A') ||
+               setweight(to_tsvector(coalesce(NEW."Content",'')), 'D');
+    RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 
@@ -23,3 +25,20 @@ BEGIN
     RETURN;
  END
 $$ LANGUAGE plpgsql;
+
+-- Auto-Update NoteCount in Tags --
+
+CREATE OR REPLACE FUNCTION "NoteTagsTriggerFunction"() RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
+        UPDATE "Tags" SET "NoteCount" = "NoteCount"+1, "LastUsed" = CURRENT_TIMESTAMP WHERE "Label" = NEW."Label";
+    ELSIF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
+        UPDATE "Tags" SET "NoteCount" = "NoteCount"-1, "LastUsed" = CURRENT_TIMESTAMP WHERE "Label" = OLD."Label";
+    END IF;
+    RETURN NULL;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "NoteTagsTrigger"
+    AFTER INSERT OR DELETE OR UPDATE ON "NoteTags"
+    FOR EACH ROW EXECUTE PROCEDURE "NoteTagsTriggerFunction"();

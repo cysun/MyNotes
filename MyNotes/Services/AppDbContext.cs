@@ -12,13 +12,13 @@ namespace MyNotes.Services
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Note> Notes { get; set; }
-        public DbSet<TagRecord> TagRecords { get; set; }
+        public DbSet<Tag> Tags { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Note>().HasQueryFilter(n => !n.Deleted);
-            modelBuilder.Entity<Tag>().HasKey(t => new { t.NoteId, t.Label });
-            modelBuilder.Entity<TagRecord>().HasAlternateKey(t => t.Label);
+            modelBuilder.Entity<NoteTag>().HasKey(t => new { t.NoteId, t.Label });
+            modelBuilder.Entity<Tag>().HasAlternateKey(t => t.Label);
         }
     }
 }

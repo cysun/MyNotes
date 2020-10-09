@@ -1,0 +1,32 @@
+﻿@model List<Tag>
+
+<nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active align-bottom">Tags</li>
+        <li class="ml-auto">
+            <a asp-action="Create" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i>
+            </a>
+        </li>
+    </ol>
+</nav>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Label</th>
+            <th>Note Count</th>
+            <th>Last Used</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var tagRecord in Model)
+        {
+            <tr>
+                <td>@tagRecord.Label</td>
+                <td>@tagRecord.NoteCount</td>
+                <td>@tagRecord.LastUsed.ToString("d")</td>
+            </tr>
+        }
+    </tbody>
+</table>

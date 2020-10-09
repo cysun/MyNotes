@@ -27,10 +27,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item"><a class="nav-link" asp-controller="Notes" asp-action="Index">Notes</a></li>
-                    @if ((await authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded)
-                    {
-                        <li class="nav-item"><a class="nav-link" asp-controller="TagRecords" asp-action="Index">Tags</a></li>
-                    }
+                    <li class="nav-item"><a class="nav-link" asp-controller="Tags" asp-action="Index">Tags</a></li>
                 </ul>
                 <a asp-controller="Notes" asp-action="Create" class="btn btn-success my-2 my-sm-0">New Note</a>
             </div>

@@ -4,7 +4,11 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-action="Index">Notes</a></li>
         <li class="breadcrumb-item active">@Model.Subject</li>
-        <li class="ml-auto"><a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">Edit</a></li>
+        <li class="ml-auto">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
+                <i class="far fa-edit"></i>
+            </a>
+        </li>
     </ol>
 </nav>
 

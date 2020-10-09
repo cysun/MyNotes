@@ -11,6 +11,31 @@
     </ol>
 </nav>
 
+<div class="btn-toolbar mb-3">
+    <button id="status" type="button" class="btn btn-success mr-3">
+        <i class="fas fa-check-circle"></i>
+    </button>
+    <button id="lock" type="button" class="btn btn-info mr-3">
+        <i id="locked" class="fas fa-lock"></i>
+        <i id="unlocked" class="fas fa-lock-open"></i>
+    </button>
+    <div id="noteTags" class="input-group mr-2">
+        @foreach (var noteTag in ViewBag.NoteTags)
+        {
+            <button type="button" class="delTag btn btn-secondary">@noteTag.Label</button>
+        }
+    </div>
+    <div class="input-group">
+        <select id="tags" class="form-control">
+            <option></option>
+            @foreach (var tag in ViewBag.Tags)
+            {
+                <option>@tag.Label</option>
+            }
+        </select>
+    </div>
+</div>
+
 <form>
     <div class="form-group">
         <input asp-for="Subject" class="form-control">
@@ -23,7 +48,34 @@
 @section Scripts{
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
     <script>
-        // Code from https://stackoverflow.com/questions/14042193/how-to-trigger-an-event-in-input-text-after-i-stop-typing-writing
+        function setStatus(saved) {
+            var status = $("#status").hasClass("btn-success");
+            if (status == saved) return;
+            if (saved)
+                $("#status")
+                    .removeClass("btn-warning")
+                    .addClass('btn-success')
+                    .empty()
+                    .append("<i class='fas fa-check-circle'></i>");
+            else
+                $("#status")
+                    .removeClass("btn-success")
+                    .addClass('btn-warning')
+                    .empty()
+                    .append("<i class='fas fa-exclamation-circle'></i>");
+        }
+        function delTag($btn) {
+            $.ajax({
+                url: "@Context.Request.PathBase/Notes/@Model.Id/Tags",
+                method: "delete",
+                data: { tag: $btn.text() },
+                success: function () {
+                    $("#tags").append(`<option>${$btn.text()}</option>)`);
+                    $btn.remove();
+                }
+            });
+        }
+        // delay code from https://stackoverflow.com/questions/14042193/how-to-trigger-an-event-in-input-text-after-i-stop-typing-writing
         var delay = (function () {
             var timer = 0;
             return function (callback, ms) {
@@ -32,12 +84,46 @@
             };
         })();
         $(function () {
+            @if (Model.IsPublic)
+            {
+                <text>$("#locked").hide();</text>
+            }
+            else
+            {
+                <text>$("#unlocked").hide();</text>
+            }
+            $("#lock").click(function () {
+                if ($("#unlocked").is(":hidden"))
+                    $.ajax({
+                        url: "@Context.Request.PathBase/Notes/@Model.Id/IsPublic",
+                        method: "put",
+                        data: { value: "True" },
+                        success: function () {
+                            $("#locked").hide();
+                            $("#unlocked").show();
+                        }
+                    });
+                else
+                    $.ajax({
+                        url: "@Context.Request.PathBase/Notes/@Model.Id/IsPublic",
+                        method: "put",
+                        data: { value: "False" },
+                        success: function () {
+                            $("#unlocked").hide();
+                            $("#locked").show();
+                        }
+                    });
+            });
             $("#Subject").keyup(function () {
+                setStatus(false);
                 delay(function () {
                     $.ajax({
-                        url: "@Context.Request.PathBase/Notes/@Model.Id/Subject",
+                    url: "@Context.Request.PathBase/Notes/@Model.Id/Subject",
                         method: "put",
-                        data: { value: $("#Subject").val() }
+                        data: { value: $("#Subject").val() },
+                        success: function () {
+                            setStatus(true);
+                        }
                     });
                 }, 1000);
             });
@@ -45,17 +131,42 @@
                 height: 600,
                 callbacks: {
                     onKeyup: function () {
+                        setStatus(false);
                         delay(function () {
                             $.ajax({
                                 url: "@Context.Request.PathBase/Notes/@Model.Id/Content",
                                 method: "put",
-                                data: { value: $("#Content").val() }
+                                data: { value: $("#Content").val() },
+                                success: function () {
+                                    setStatus(true);
+                                }
                             });
                         }, 1000);
                     }
                 }
             });
 
+            $(".delTag").click(function () {
+                delTag($(this));
+            })
+            $("#tags").change(function () {
+                var tag = $(this).val();
+                if (!tag) return;
+                $.ajax({
+                    url: "@Context.Request.PathBase/Notes/@Model.Id/Tags",
+                    method: "post",
+                    data: { tag },
+                    success: function () {
+                        var btn = $("<button type='button' class='delTag btn btn-secondary'></button>");
+                        btn.text(tag);
+                        btn.click(function () {
+                            delTag(btn);
+                        });
+                        $("#noteTags").append(btn);
+                        $("option:selected").remove();
+                    }
+                });
+            });
         });
     </script>
 }
