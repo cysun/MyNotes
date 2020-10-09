@@ -76,6 +76,12 @@ namespace MyNotes.Controllers
             if (!note.IsPublic && !(await _authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded)
                 return Forbid();
 
+            if (!User.Identity.IsAuthenticated)
+            {
+                note.ViewCount++;
+                _notesService.SaveChanges();
+            }
+
             return View(note);
         }
 
