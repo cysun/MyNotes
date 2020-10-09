@@ -1,6 +1,6 @@
 ﻿@model NoteInputModel
 @section StyleSheets{
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
 }
 
 <nav>
@@ -46,7 +46,9 @@
 </form>
 
 @section Scripts{
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+    <script src="https://unpkg.com/prettier@2.1.2/standalone.js"></script>
+    <script src="https://unpkg.com/prettier@2.1.2/parser-html.js"></script>
     <script>
         function setStatus(saved) {
             var status = $("#status").hasClass("btn-success");
@@ -75,7 +77,7 @@
                 }
             });
         }
-        // delay code from https://stackoverflow.com/questions/14042193/how-to-trigger-an-event-in-input-text-after-i-stop-typing-writing
+        // Code from https://stackoverflow.com/questions/14042193/how-to-trigger-an-event-in-input-text-after-i-stop-typing-writing
         var delay = (function () {
             var timer = 0;
             return function (callback, ms) {
@@ -83,6 +85,42 @@
                 timer = setTimeout(callback, ms);
             };
         })();
+        // Code from https://github.com/summernote/summernote/issues/3409
+        var formatButton = function (context) {
+            var ui = $.summernote.ui;
+            var button = ui.button({
+                contents: "<i class='fas fa-hand-sparkles'></i>",
+                tooltip: "Format HTML",
+                click: function () {
+                    if (prettier && prettierPlugins) {
+                        let content = prettier.format($("#Content").summernote("code"), {
+                            parser: "html",
+                            plugins: prettierPlugins
+                        });
+                        $("#Content").summernote("code", content);
+                    }
+                }
+            });
+            return button.render();
+        };
+        var saveButton = function (context) {
+            var ui = $.summernote.ui;
+            var button = ui.button({
+                contents: "<i class='fas fa-save'></i>",
+                tooltip: "Save",
+                click: function () {
+                    $.ajax({
+                        url: "@Context.Request.PathBase/Notes/@Model.Id/Content",
+                        method: "put",
+                        data: { value: $("#Content").val() },
+                        success: function () {
+                            setStatus(true);
+                        }
+                    });
+                }
+            });
+            return button.render();
+        };
         $(function () {
             @if (Model.IsPublic)
             {
@@ -142,10 +180,27 @@
                                 }
                             });
                         }, 1000);
+                    },
+                    onBlurCodeview: function () {
+                        console.log("something");
                     }
+                },
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'strikethrough', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['format', 'codeview', 'fullscreen']],
+                    ['save', ['save']],
+                ],
+                buttons: {
+                    format: formatButton,
+                    save: saveButton
                 }
             });
-
             $(".delTag").click(function () {
                 delTag($(this));
             })
