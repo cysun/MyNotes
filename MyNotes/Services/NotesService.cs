@@ -43,7 +43,9 @@ namespace MyNotes.Services
         {
             if (string.IsNullOrWhiteSpace(term)) return new List<Note>();
 
-            return _db.Notes.FromSqlRaw("SELECT * FROM \"SearchNotes\"({0})", term).ToList();
+            return _db.Notes.FromSqlRaw("SELECT * FROM \"SearchNotes\"({0})", term)
+                .Include(n => n.NoteTags) // This is very cool
+                .ToList();
         }
 
         public List<Note> SearchNotesByTag(string label)

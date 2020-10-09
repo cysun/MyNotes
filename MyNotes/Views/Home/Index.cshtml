@@ -1,9 +1,5 @@
-﻿@inject Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService
-@{
-    bool isOwner = (await authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded;
-}
-<div class="row">
-    <div class="col-md-7">
+﻿<div class="row">
+    <div class="col-md-8">
         <h4 class="text-center">Recent Notes</h4>
         @if (ViewBag.Notes.Count == 0)
         {
@@ -11,23 +7,27 @@
         }
         else
         {
-            <table class="table">
+            <table class="table table-hover">
                 <tbody>
                     @foreach (var note in ViewBag.Notes)
                     {
-                        @if (isOwner || !note.IsPrivate)
-                        {
-                            <tr>
-                                <td><a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a></td>
-                                <td>@note.Updated.ToString("d")</td>
-                            </tr>
-                        }
+                        <tr>
+                            <td>
+                                <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id" class="mr-3">@note.Subject</a>
+                                @foreach (var noteTag in note.NoteTags)
+                                {
+                                    <a asp-controller="Notes" asp-action="Index" asp-route-term="tag:@noteTag.Label"
+                                       class="badge badge-success">@noteTag.Label</a>
+                                }
+                            </td>
+                            <td>@note.Updated.ToString("d")</td>
+                        </tr>
                     }
                 </tbody>
             </table>
         }
     </div>
-    <div class="col-md-5">
+    <div class="col-md-4">
         <h4 class="text-center">Recent Tags</h4>
         @if (ViewBag.Tags.Count == 0)
         {
@@ -35,12 +35,16 @@
         }
         else
         {
-            <table class="table">
+            <table class="table table-hover">
                 <tbody>
                     @foreach (var tagRecord in ViewBag.Tags)
                     {
                         <tr>
-                            <td>@tagRecord.Label</td>
+                            <td>
+                                <a asp-controller="Notes" asp-action="Index" asp-route-term="tag:@tagRecord.Label">
+                                    @tagRecord.Label
+                                </a>
+                            </td>
                             <td>@tagRecord.LastUsed.ToString("d")</td>
                         </tr>
                     }

@@ -19,6 +19,8 @@ CREATE TRIGGER "NotesTsTrigger"
     BEFORE INSERT OR UPDATE ON "Notes"
     FOR EACH ROW EXECUTE PROCEDURE "NotesTsTriggerFunction"();
 
+-- Search Notes by FTS --
+
 CREATE OR REPLACE FUNCTION "SearchNotes"(q varchar) RETURNS SETOF "Notes" AS $$
 BEGIN
     RETURN QUERY SELECT * FROM "Notes" WHERE plainto_tsquery(q) @@ tsv LIMIT 20;

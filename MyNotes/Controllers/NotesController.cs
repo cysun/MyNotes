@@ -36,7 +36,16 @@ namespace MyNotes.Controllers
 
         public IActionResult Index(string term)
         {
-            return View(_notesService.SearchNotes(term));
+            List<Note> notes;
+
+            if (string.IsNullOrWhiteSpace(term))
+                notes = _notesService.GetRecentNotes();
+            else if (term.StartsWith("tag:"))
+                notes = _notesService.SearchNotesByTag(term.Substring("tag:".Length));
+            else
+                notes = _notesService.SearchNotes(term);
+
+            return View(notes);
         }
 
         [HttpGet]

@@ -22,7 +22,7 @@
     <div id="noteTags" class="input-group mr-2">
         @foreach (var noteTag in ViewBag.NoteTags)
         {
-            <button type="button" class="delTag btn btn-secondary">@noteTag.Label</button>
+            <button type="button" class="delTag btn btn-secondary mr-2">@noteTag.Label</button>
         }
     </div>
     <div class="input-group">
@@ -157,7 +157,7 @@
                     method: "post",
                     data: { tag },
                     success: function () {
-                        var btn = $("<button type='button' class='delTag btn btn-secondary'></button>");
+                        var btn = $("<button type='button' class='delTag btn btn-secondary mr-2'></button>");
                         btn.text(tag);
                         btn.click(function () {
                             delTag(btn);
