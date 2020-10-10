@@ -27,7 +27,11 @@
         {
             <tr>
                 <td>@tagRecord.Label</td>
-                <td>@tagRecord.NoteCount</td>
+                <td>
+                    <a asp-controller="Notes" asp-action="Index" asp-route-term="tag:@tagRecord.Label">
+                        @tagRecord.NoteCount
+                    </a>
+                </td>
                 <td>@tagRecord.LastUsed.ToString("d")</td>
             </tr>
         }

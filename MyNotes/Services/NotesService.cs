@@ -51,6 +51,7 @@ namespace MyNotes.Services
         public List<Note> SearchNotesByTag(string label)
         {
             return _db.Notes.Where(n => n.NoteTags.Any(t => t.Label == label))
+                .Include(n => n.NoteTags)
                 .OrderByDescending(n => n.Updated)
                 .ToList();
         }
