@@ -1,14 +1,21 @@
 ﻿@model Note
+@inject Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService
+@{
+    ViewData["Title"] = $"MyNotes - {Model.Subject}";
+}
 
 <nav>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-action="Index">Notes</a></li>
         <li class="breadcrumb-item active">@Model.Subject</li>
-        <li class="ml-auto">
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
-                <i class="far fa-edit"></i>
-            </a>
-        </li>
+        @if ((await authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded)
+        {
+            <li class="ml-auto">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
+                    <i class="far fa-edit"></i>
+                </a>
+            </li>
+        }
     </ol>
 </nav>
 
