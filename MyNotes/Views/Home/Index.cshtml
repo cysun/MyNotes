@@ -16,6 +16,10 @@
                     {
                         <tr>
                             <td>
+                                @if (note.IsPublic)
+                                {
+                                    <i class="fab fa-creative-commons-share text-secondary"></i>
+                                }
                                 <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id" class="mr-3">@note.Subject</a>
                                 @foreach (var noteTag in note.NoteTags)
                                 {
