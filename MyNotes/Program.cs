@@ -21,7 +21,15 @@ namespace MyNotes
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>().UseUrls("http://localhost:5004");
+                    // Due to recent enforcement of "SameSite=None; Secure" by the major browsers
+                    // (https://blog.chromium.org/2019/10/developers-get-ready-for-new.html),
+                    // AIS must run with HTTPS even in dev environment. Use the following command
+                    // to create a trusted dev certificate:
+                    //      dotnet dev-certs https --trust
+                    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == Environments.Development)
+                        webBuilder.UseStartup<Startup>();
+                    else
+                        webBuilder.UseStartup<Startup>().UseUrls("http://localhost:5004");
                 })
                 .UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration
                     .ReadFrom.Configuration(hostingContext.Configuration));

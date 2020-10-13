@@ -8,7 +8,7 @@
     "DefaultConnection": "Host=localhost;Database=mynotes;Username=cysun;Password=abcd"
   },
   "OIDC": {
-    "Authority": "http://localhost:5000",
+    "Authority": "https://localhost:5001",
     "ClientId": "cysun-mynotes",
     "ClientSecret": "abcd"
   },
