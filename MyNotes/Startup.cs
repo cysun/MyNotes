@@ -84,6 +84,7 @@ namespace MyNotes
 
             services.AddScoped<NotesService>();
             services.AddScoped<TagsService>();
+            services.AddScoped<FilesService>();
         }
 
         public void Configure(IApplicationBuilder app)

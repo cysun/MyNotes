@@ -1,3 +1,3 @@
 # My Notes
 
-My note-taking web application.
+My note-taking, file-managing, webapp.

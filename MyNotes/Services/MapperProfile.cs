@@ -13,6 +13,8 @@ namespace MyNotes.Services
         {
             CreateMap<NoteInputModel, Note>().ForMember(i => i.Id, opt => opt.Ignore());
             CreateMap<Note, NoteInputModel>();
+
+            CreateMap<File, FileHistory>().ForMember(h => h.FileId, opt => opt.MapFrom(f => f.Id));
         }
     }
 }

@@ -1,0 +1,136 @@
+﻿@model List<File>
+@{
+    ViewData["Title"] = "MyNotes - Files";
+}
+@section StyleSheets{
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.2/dropzone.min.css"
+          integrity="sha512-3g+prZHHfmnvE1HBLwUnVuunaPOob7dpksI7/v6UnF/rnKGwHf/GdEq9K7iEN7qTtW+S0iivTcGpeTBqqB04wA=="
+          crossorigin="anonymous" />
+}
+
+<div class="btn-toolbar mb-3">
+    <form method="get" class="form-inline">
+        <div class="input-group mr-2">
+            <input type="text" class="form-control" id="term" name="term" value="@Context.Request.Query["term"]">
+        </div>
+        <button type="submit" class="btn btn-primary mr-3">Search</button>
+    </form>
+    @if (string.IsNullOrWhiteSpace(Context.Request.Query["term"]))
+    {
+        <button id="uploadToggle" type="button" class="btn btn-primary mr-3">
+            <i class="fas fa-file-upload"></i>
+        </button>
+        <button id="newFolderToggle" type="button" class="btn btn-primary mr-3">
+            <i class="fas fa-folder-plus"></i>
+        </button>
+        <div id="newFolderForm" class="input-group mr-3">
+            <input id="newFolder" type="text" class="form-control" style="width: 20em;">
+            <div class="input-group-append">
+                <div class="input-group-text" id="clearBtn"><i class="fas fa-times"></i></div>
+            </div>
+        </div>
+    }
+</div>
+
+<form id="uploadForm" asp-controller="Files" asp-action="Upload" class="dropzone"
+      method="post" enctype="multipart/form-data"></form>
+
+<table class="table table-hover">
+    <thead>
+        <tr><th>Name</th><th>Size</th><th>Created</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var file in Model)
+        {
+            var icon = file.IsPublic ? "far" : "fas";
+            @if (file.IsFolder)
+            {
+                <tr>
+                    <td>
+                        <i class="folder @icon fa-folder mr-2" style="color: orange;" data-file-id="@file.Id"></i>
+                        <a asp-controller="Folders" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
+                    </td>
+                    <td></td>
+                    <td>@file.Created.ToString("g")</td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td>
+                        <i class="file @icon fa-file mr-2" style="color: orange;" data-file-id="@file.Id"></i>
+                        <a asp-controller="Files" asp-action="Download" asp-route-id="@file.Id">@file.Name</a>
+                        @if (file.Version > 1)
+                        {
+                            <span class="badge badge-info ml-2">v@(file.Version)</span>
+                        }
+                    </td>
+                    <td>@file.Size</td>
+                    <td>@file.Created.ToString("g")</td>
+                </tr>
+            }
+
+        }
+    </tbody>
+</table>
+
+@section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.2/min/dropzone.min.js"
+            integrity="sha512-9WciDs0XP20sojTJ9E7mChDXy6pcO0qHpwbEJID1YVavz2H6QBz5eLoDD8lseZOb2yGT8xDNIV7HIe1ZbuiDWg=="
+            crossorigin="anonymous"></script>
+    <script>
+        Dropzone.options.uploadForm = {
+            uploadMultiple: true,
+            // uploadMultiple is true, Dropzone add [] to paramName. For some reason ASP.NET Core does not
+            // bind it to a collection like for other parameter types. The paramName functio trick is from
+            // https://stackoverflow.com/questions/58815724/how-to-integrate-dropzone-js-with-asp-net-core-mvc
+            paramName: () => "uploadedFiles",
+            completemultiple: function () {
+                location.reload();
+            }
+        };
+        $(function () {
+            $("#uploadForm").hide();
+            $("#newFolderForm").hide();
+            $("#uploadToggle").click(function () {
+                $("#uploadForm").toggle();
+            });
+            $("#newFolderToggle").click(function () {
+                $("#newFolderForm").toggle();
+                if ($("#newFolderForm").is(":visible"))
+                    $("#newFolder").focus();
+            });
+            $("#newFolder").keyup(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                var name = $(this).val();
+                if (keycode == "13" && name) {
+                    $.ajax({
+                        url: "@Context.Request.PathBase/Folders",
+                        method: "post",
+                        data: { name },
+                        success: function () {
+                            location.reload();
+                        }
+                    });
+                }
+            });
+            $("#clearBtn").click(function () {
+                $("#newFolder").val("");
+            });
+            $(".file,.folder").click(function () {
+                var fileId = $(this).attr("data-file-id");
+                var value = $(this).hasClass("fas") ? "True" : "False";
+                $.ajax({
+                    url: `@Context.Request.PathBase/Files/${fileId}/IsPublic`,
+                    method: "put",
+                    data: { value },
+                    context: $(this),
+                    success: function () {
+                        this.toggleClass("far");
+                        this.toggleClass("fas");
+                    }
+                });
+            });
+        });
+    </script>
+}

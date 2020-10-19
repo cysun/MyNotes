@@ -44,3 +44,33 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER "NoteTagsTrigger"
     AFTER INSERT OR DELETE OR UPDATE ON "NoteTags"
     FOR EACH ROW EXECUTE PROCEDURE "NoteTagsTriggerFunction"();
+
+-- Start File Id from 1000000 --
+
+ALTER SEQUENCE "Files_Id_seq" RESTART WITH 1000000;
+
+-- FTS on File Names --
+
+ALTER TABLE "Files" ADD COLUMN tsv tsvector;
+
+CREATE INDEX "FilesTsIndex" ON "Files" USING GIN(tsv);
+
+CREATE OR REPLACE FUNCTION "FilesTsTriggerFunction"() RETURNS TRIGGER AS $$
+BEGIN
+    NEW.tsv := to_tsvector(NEW."Name");
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "FilesTsTrigger"
+    BEFORE INSERT OR UPDATE ON "Files"
+    FOR EACH ROW EXECUTE PROCEDURE "FilesTsTriggerFunction"();
+
+-- Search Files by FTS --
+
+CREATE OR REPLACE FUNCTION "SearchFiles"(q varchar) RETURNS SETOF "Files" AS $$
+BEGIN
+    RETURN QUERY SELECT * FROM "Files" WHERE plainto_tsquery(q) @@ tsv LIMIT 20;
+    RETURN;
+ END
+$$ LANGUAGE plpgsql;

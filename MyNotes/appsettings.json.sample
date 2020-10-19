@@ -12,6 +12,7 @@
     "ClientId": "cysun-mynotes",
     "ClientSecret": "abcd"
   },
+  "FilesDirectory": "D:/Temp/MyNotes/files",
   "Serilog": {
     "Using": [
       "Serilog.Sinks.File"
