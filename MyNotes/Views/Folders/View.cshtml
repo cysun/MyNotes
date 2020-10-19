@@ -3,49 +3,58 @@
     ViewData["Title"] = $"MyNotes - /{Model.Name}";
     var lockIcon = Model.IsPublic ? "fa-lock-open" : "fa-lock";
 }
-@section StyleSheets{
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.2/dropzone.min.css"
-          integrity="sha512-3g+prZHHfmnvE1HBLwUnVuunaPOob7dpksI7/v6UnF/rnKGwHf/GdEq9K7iEN7qTtW+S0iivTcGpeTBqqB04wA=="
-          crossorigin="anonymous" />
-}
 
 <nav>
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a asp-controller="Files" asp-action="Index">Files</a></li>
-        @foreach (var ancestor in ViewBag.Ancestors)
+        @if (Context.User.Identity.IsAuthenticated)
         {
-            <li class="breadcrumb-item"><a asp-action="View" asp-route-id="@ancestor.Id">@ancestor.Name</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Files" asp-action="Index">Files</a></li>
+            @foreach (var ancestor in ViewBag.Ancestors)
+            {
+                <li class="breadcrumb-item"><a asp-action="View" asp-route-id="@ancestor.Id">@ancestor.Name</a></li>
+            }
         }
         <li class="breadcrumb-item active">@Model.Name</li>
     </ol>
 </nav>
 
-<div class="btn-toolbar mb-3">
-    <button id="lock" type="button" class="btn btn-info mr-3">
-        <i id="isPublic" class="fas @lockIcon"></i>
-    </button>
-    <button id="uploadToggle" type="button" class="btn btn-primary mr-3">
-        <i class="fas fa-file-upload"></i>
-    </button>
-    <button id="newFolderToggle" type="button" class="btn btn-primary mr-3">
-        <i class="fas fa-folder-plus"></i>
-    </button>
-    <div id="newFolderForm" class="input-group">
-        <input id="newFolder" type="text" class="form-control" style="width: 20em;">
-        <div class="input-group-append">
-            <div class="input-group-text" id="clearBtn"><i class="fas fa-times"></i></div>
+@if (Context.User.Identity.IsAuthenticated)
+{
+    <div class="btn-toolbar mb-3">
+        <button id="lock" type="button" class="btn btn-info mr-3">
+            <i id="isPublic" class="fas @lockIcon"></i>
+        </button>
+        <button id="uploadToggle" type="button" class="btn btn-primary mr-3">
+            <i class="fas fa-file-upload"></i>
+        </button>
+        <button id="newFolderToggle" type="button" class="btn btn-primary mr-3">
+            <i class="fas fa-folder-plus"></i>
+        </button>
+        <div id="newFolderForm" class="input-group">
+            <input id="newFolder" type="text" class="form-control" style="width: 20em;">
+            <div class="input-group-append">
+                <div class="input-group-text" id="clearBtn"><i class="fas fa-times"></i></div>
+            </div>
         </div>
     </div>
-</div>
 
-<form id="uploadForm" asp-controller="Files" asp-action="Upload" class="dropzone"
-      method="post" enctype="multipart/form-data">
-    <input type="hidden" name="parentId" value="@Model.Id" />
-</form>
+    <form id="uploadForm" asp-controller="Files" asp-action="Upload" class="dropzone"
+          method="post" enctype="multipart/form-data">
+        <input type="hidden" name="parentId" value="@Model.Id" />
+    </form>
+}
 
 <table class="table table-hover">
     <thead>
-        <tr><th>Name</th><th>Size</th><th>Created</th></tr>
+        <tr>
+            <th>Name</th>
+            <th>Size</th>
+            <th>Updated</th>
+            @if (Context.User.Identity.IsAuthenticated)
+            {
+                <th></th>
+            }
+        </tr>
     </thead>
     <tbody>
         @foreach (var file in Model.Children)
@@ -73,17 +82,25 @@
                     </td>
                     <td>@file.Size</td>
                 }
-                <td>@file.Created.ToString("g")</td>
-                <td>
-                    <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id" class="btn btn-primary btn-sm">
-                        <i class="far fa-edit"></i>
-                    </a>
-                </td>
+                <td>@file.Updated.ToString("g")</td>
+                @if (Context.User.Identity.IsAuthenticated)
+                {
+                    <td>
+                        <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id" class="btn btn-primary btn-sm">
+                            <i class="far fa-edit"></i>
+                        </a>
+                    </td>
+                }
             </tr>
         }
     </tbody>
 </table>
 
+@section StyleSheets{
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.2/dropzone.min.css"
+          integrity="sha512-3g+prZHHfmnvE1HBLwUnVuunaPOob7dpksI7/v6UnF/rnKGwHf/GdEq9K7iEN7qTtW+S0iivTcGpeTBqqB04wA=="
+          crossorigin="anonymous" />
+}
 @section Scripts{
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.2/min/dropzone.min.js"
             integrity="sha512-9WciDs0XP20sojTJ9E7mChDXy6pcO0qHpwbEJID1YVavz2H6QBz5eLoDD8lseZOb2yGT8xDNIV7HIe1ZbuiDWg=="

@@ -37,7 +37,7 @@
 
 <table class="table table-hover">
     <thead>
-        <tr><th>Name</th><th>Size</th><th>Created</th></tr>
+        <tr><th>Name</th><th>Size</th><th>Updated</th><th></th></tr>
     </thead>
     <tbody>
         @foreach (var file in Model)
@@ -65,7 +65,7 @@
                     </td>
                     <td>@file.Size</td>
                 }
-                <td>@file.Created.ToString("g")</td>
+                <td>@file.Updated.ToString("g")</td>
                 <td>
                     <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id" class="btn btn-primary btn-sm">
                         <i class="far fa-edit"></i>

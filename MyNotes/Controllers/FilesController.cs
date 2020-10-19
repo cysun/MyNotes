@@ -110,14 +110,21 @@ namespace MyNotes.Controllers
             return Ok();
         }
 
-        public IActionResult Download(int id)
+        [AllowAnonymous]
+        public async Task<IActionResult> DownloadAsync(int id)
         {
             var file = _filesService.GetFile(id);
             if (file == null) return NotFound();
             if (file.IsFolder) return BadRequest();
 
-            file.AccessCount++;
-            _filesService.SaveChanges();
+            if (!file.IsPublic && !(await _authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded)
+                return Forbid();
+
+            if (!User.Identity.IsAuthenticated)
+            {
+                file.AccessCount++;
+                _filesService.SaveChanges();
+            }
 
             return PhysicalFile(_filesService.GetDiskFile(file.Id, file.Version),
                 file.ContentType, file.Name);

@@ -30,12 +30,25 @@ namespace MyNotes.Controllers
             _logger = logger;
         }
 
-        public IActionResult View(int id)
+        [AllowAnonymous]
+        public async Task<IActionResult> ViewAsync(int id)
         {
             var folder = _filesService.GetFolder(id);
             if (folder == null) return NotFound();
 
-            ViewBag.Ancestors = _filesService.GetAncestors(folder);
+            if (!folder.IsPublic && !(await _authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded)
+                return Forbid();
+
+            if (User.Identity.IsAuthenticated)
+            {
+                ViewBag.Ancestors = _filesService.GetAncestors(folder);
+            }
+            else
+            {
+                folder.AccessCount++;
+                _filesService.SaveChanges();
+            }
+
             return View(folder);
         }
 
