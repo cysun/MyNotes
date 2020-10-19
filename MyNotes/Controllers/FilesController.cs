@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -43,11 +44,68 @@ namespace MyNotes.Controllers
             return View(files);
         }
 
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            var file = _filesService.GetFile(id);
+            if (file == null) return NotFound();
+
+            ViewBag.Ancestors = _filesService.GetAncestors(file);
+            return View(_mapper.Map<FileInputModel>(file));
+        }
+
+        [HttpPost]
+        public IActionResult Edit(int id, FileInputModel input)
+        {
+            if (!ModelState.IsValid) return View(input);
+
+            var file = _filesService.GetFile(id);
+            if (file == null) return NotFound();
+
+            _mapper.Map(input, file);
+            file.Updated = DateTime.Now;
+            _filesService.SaveChanges();
+
+            if (file.ParentId != null)
+                return RedirectToAction("View", "Folders", new { id = file.ParentId });
+            else
+                return RedirectToAction("Index");
+        }
+
+        public IActionResult Delete(int id)
+        {
+            var file = _filesService.GetFile(id);
+            if (file == null) return NotFound();
+
+            if (file.IsFolder)
+            {
+                var filesDeleted = _filesService.DeleteFolder(id);
+                _logger.LogInformation("{n} files deleted.", filesDeleted);
+            }
+            else
+            {
+                var versionsDeleted = _filesService.DeleteFile(id);
+                _logger.LogInformation("{n} versions of {file} deleted.", versionsDeleted, id);
+            }
+
+            if (file.ParentId != null)
+                return RedirectToAction("View", "Folders", new { id = file.ParentId });
+            else
+                return RedirectToAction("Index");
+        }
+
         [HttpPost]
         public IActionResult Upload(int? parentId, IFormFile[] uploadedFiles)
         {
             foreach (var uploadedFile in uploadedFiles)
                 _filesService.UploadFile(parentId, uploadedFile);
+
+            if (parentId != null)
+            {
+                var parent = _filesService.GetFile((int)parentId);
+                parent.Updated = DateTime.Now;
+                _filesService.SaveChanges();
+            }
 
             return Ok();
         }
@@ -57,6 +115,9 @@ namespace MyNotes.Controllers
             var file = _filesService.GetFile(id);
             if (file == null) return NotFound();
             if (file.IsFolder) return BadRequest();
+
+            file.AccessCount++;
+            _filesService.SaveChanges();
 
             return PhysicalFile(_filesService.GetDiskFile(file.Id, file.Version),
                 file.ContentType, file.Name);
@@ -86,5 +147,27 @@ namespace MyNotes.Controllers
 
             return Ok();
         }
+    }
+}
+
+namespace MyNotes.Models
+{
+    public class FileInputModel
+    {
+        public int Id { get; set; }
+
+        [Required]
+        [MaxLength(1000)]
+        public string Name { get; set; }
+
+        public int? ParentId { get; set; }
+
+        public bool IsFolder { get; set; }
+
+        [Display(Name = "Favorite")]
+        public bool IsFavorite { get; set; }
+
+        [Display(Name = "Public")]
+        public bool IsPublic { get; set; }
     }
 }

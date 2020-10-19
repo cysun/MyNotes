@@ -1,0 +1,66 @@
+﻿@model FileInputModel
+@{
+    ViewData["Title"] = $"MyNotes - Edit File";
+}
+
+<nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Files" asp-action="Index">Files</a></li>
+        @foreach (var ancestor in ViewBag.Ancestors)
+        {
+            <li class="breadcrumb-item">
+                <a asp-controller="Folders" asp-action="View" asp-route-id="@ancestor.Id">@ancestor.Name</a>
+            </li>
+        }
+        @if (Model.IsFolder)
+        {
+            <li class="breadcrumb-item">
+                <a asp-controller="Folders" asp-action="View" asp-route-id="@Model.Id">@Model.Name</a>
+            </li>
+            <li class="breadcrumb-item active">Edit</li>
+        }
+        else
+        {
+            <li class="breadcrumb-item active">@Model.Name</li>
+        }
+        <li class="ml-auto">
+            <button id="delete" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+        </li>
+    </ol>
+</nav>
+
+<form method="post">
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" required>
+    </div>
+    <div class="form-group form-check">
+        <input asp-for="IsPublic" class="form-check-input" />
+        <label asp-for="IsPublic" class="form-check-label"></label>
+    </div>
+    <div class="form-group form-check">
+        <input asp-for="IsFavorite" class="form-check-input" />
+        <label asp-for="IsFavorite" class="form-check-label"></label>
+    </div>
+    @if (Model.ParentId != null)
+    {
+        <a asp-controller="Folders" asp-action="View" asp-route-id="@Model.ParentId"
+           class="btn btn-secondary">Cancel</a>
+    }
+    else
+    {
+        <a asp-controller="Files" asp-action="Index" class="btn btn-secondary">Cancel</a>
+    }
+    <button type="submit" class="btn btn-primary ml-2">Save</button>
+</form>
+
+@section Scripts{
+    <script>
+    $(function () {
+        $("#delete").click(function () {
+            if (confirm("Are you sure you want to delete this file?"))
+                window.location.href = "@Context.Request.PathBase/Files/Delete/@Model.Id";
+        });
+    });
+    </script>
+}

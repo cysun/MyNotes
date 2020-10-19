@@ -43,20 +43,18 @@
         @foreach (var file in Model)
         {
             var icon = file.IsPublic ? "far" : "fas";
-            @if (file.IsFolder)
-            {
-                <tr>
+            <tr>
+                @if (file.IsFolder)
+                {
+
                     <td>
                         <i class="folder @icon fa-folder mr-2" style="color: orange;" data-file-id="@file.Id"></i>
                         <a asp-controller="Folders" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
                     </td>
                     <td></td>
-                    <td>@file.Created.ToString("g")</td>
-                </tr>
-            }
-            else
-            {
-                <tr>
+                }
+                else
+                {
                     <td>
                         <i class="file @icon fa-file mr-2" style="color: orange;" data-file-id="@file.Id"></i>
                         <a asp-controller="Files" asp-action="Download" asp-route-id="@file.Id">@file.Name</a>
@@ -66,10 +64,14 @@
                         }
                     </td>
                     <td>@file.Size</td>
-                    <td>@file.Created.ToString("g")</td>
-                </tr>
-            }
-
+                }
+                <td>@file.Created.ToString("g")</td>
+                <td>
+                    <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id" class="btn btn-primary btn-sm">
+                        <i class="far fa-edit"></i>
+                    </a>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
@@ -85,7 +87,8 @@
             // bind it to a collection like for other parameter types. The paramName functio trick is from
             // https://stackoverflow.com/questions/58815724/how-to-integrate-dropzone-js-with-asp-net-core-mvc
             paramName: () => "uploadedFiles",
-            completemultiple: function () {
+            parallelUploads: 10,
+            queuecomplete: function () {
                 location.reload();
             }
         };

@@ -9,12 +9,20 @@
           crossorigin="anonymous" />
 }
 
+<nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Files" asp-action="Index">Files</a></li>
+        @foreach (var ancestor in ViewBag.Ancestors)
+        {
+            <li class="breadcrumb-item"><a asp-action="View" asp-route-id="@ancestor.Id">@ancestor.Name</a></li>
+        }
+        <li class="breadcrumb-item active">@Model.Name</li>
+    </ol>
+</nav>
+
 <div class="btn-toolbar mb-3">
     <button id="lock" type="button" class="btn btn-info mr-3">
         <i id="isPublic" class="fas @lockIcon"></i>
-    </button>
-    <button id="edit" type="button" class="btn btn-primary mr-3">
-        <i class="fas fa-edit"></i>
     </button>
     <button id="uploadToggle" type="button" class="btn btn-primary mr-3">
         <i class="fas fa-file-upload"></i>
@@ -43,20 +51,18 @@
         @foreach (var file in Model.Children)
         {
             var icon = file.IsPublic ? "far" : "fas";
-            @if (file.IsFolder)
-            {
-                <tr>
+            <tr>
+                @if (file.IsFolder)
+                {
+
                     <td>
                         <i class="folder @icon fa-folder mr-2" style="color: orange;" data-file-id="@file.Id"></i>
                         <a asp-action="View" asp-route-id="@file.Id">@file.Name</a>
                     </td>
                     <td></td>
-                    <td>@file.Created.ToString("g")</td>
-                </tr>
-            }
-            else
-            {
-                <tr>
+                }
+                else
+                {
                     <td>
                         <i class="file @icon fa-file mr-2" style="color: orange;" data-file-id="@file.Id"></i>
                         <a asp-controller="Files" asp-action="Download" asp-route-id="@file.Id">@file.Name</a>
@@ -66,10 +72,14 @@
                         }
                     </td>
                     <td>@file.Size</td>
-                    <td>@file.Created.ToString("g")</td>
-                </tr>
-            }
-
+                }
+                <td>@file.Created.ToString("g")</td>
+                <td>
+                    <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id" class="btn btn-primary btn-sm">
+                        <i class="far fa-edit"></i>
+                    </a>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
@@ -85,7 +95,8 @@
             // bind it to a collection like for other parameter types. The paramName functio trick is from
             // https://stackoverflow.com/questions/58815724/how-to-integrate-dropzone-js-with-asp-net-core-mvc
             paramName: () => "uploadedFiles",
-            completemultiple: function () {
+            parallelUploads: 10,
+            queuecomplete: function () {
                 location.reload();
             }
         };

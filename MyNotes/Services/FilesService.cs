@@ -47,15 +47,17 @@ namespace MyNotes.Services
 
         public Models.File GetFolder(int id)
         {
-            var folder = _db.Files.Where(f => f.Id == id)
+            var folder = _db.Files.Where(f => f.Id == id && f.IsFolder)
                 .Include(f => f.Children)
                 .SingleOrDefault();
 
-            if (folder == null || !folder.IsFolder) return null;
-
-            folder.Children = folder.Children
-                .OrderByDescending(f => f.IsFolder).
-                ThenBy(f => f.Name).ToList();
+            if (folder != null)
+            {
+                folder.Children = folder.Children
+                    .OrderByDescending(c => c.IsFolder)
+                    .ThenBy(c => c.Name)
+                    .ToList();
+            }
 
             return folder;
         }
@@ -68,7 +70,7 @@ namespace MyNotes.Services
             while (parentId != null)
             {
                 var parent = _db.Files.Find(parentId);
-                ancestors.Prepend(parent);
+                ancestors.Insert(0, parent);
                 parentId = parent.ParentId;
             }
 
@@ -128,6 +130,54 @@ namespace MyNotes.Services
             return _db.Files.FromSqlRaw("SELECT * FROM \"SearchFiles\"({0})", term)
                 .OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name)
                 .ToList();
+        }
+
+        public int DeleteFile(int id)
+        {
+            var file = _db.Files.Find(id);
+            if (file != null)
+            {
+                for (int i = 1; i < file.Version; ++i)
+                {
+                    File.Delete(GetDiskFile(id, i));
+                    _db.FileHistories.Remove(new Models.FileHistory
+                    {
+                        FileId = id,
+                        Version = i
+                    });
+                }
+            }
+            File.Delete(GetDiskFile(id, file.Version));
+            _db.Files.Remove(file);
+            _db.SaveChanges();
+
+            return file.Version;
+        }
+
+        public int DeleteFolder(int id)
+        {
+            var totalRemoved = 0;
+            var folder = _db.Files.Find(id);
+            if (folder != null)
+            {
+                var children = _db.Files.Where(f => f.ParentId == id).ToList();
+                foreach (var child in children)
+                {
+                    if (child.IsFolder)
+                        totalRemoved += DeleteFolder(child.Id);
+                    else
+                    {
+                        DeleteFile(child.Id);
+                        totalRemoved++;
+                    }
+                }
+
+                _db.Files.Remove(folder);
+                _db.SaveChanges();
+                ++totalRemoved;
+            }
+
+            return totalRemoved;
         }
 
         public void SaveChanges() => _db.SaveChanges();
