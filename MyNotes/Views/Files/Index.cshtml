@@ -108,7 +108,7 @@
                 var name = $(this).val();
                 if (keycode == "13" && name) {
                     $.ajax({
-                        url: "@Context.Request.PathBase/Folders",
+                        url: "@Context.Request.PathBase/folders",
                         method: "post",
                         data: { name },
                         success: function () {
@@ -124,7 +124,7 @@
                 var fileId = $(this).attr("data-file-id");
                 var value = $(this).hasClass("fas") ? "True" : "False";
                 $.ajax({
-                    url: `@Context.Request.PathBase/Files/${fileId}/IsPublic`,
+                    url: `@Context.Request.PathBase/files/${fileId}/IsPublic`,
                     method: "put",
                     data: { value },
                     context: $(this),

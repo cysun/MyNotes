@@ -80,6 +80,8 @@ namespace MyNotes
                     policy.RequireClaim("email", Configuration["Application:Owner"]));
             });
 
+            services.AddRouting(options => options.LowercaseUrls = true);
+
             services.AddAutoMapper(config => config.AddProfile<MapperProfile>());
 
             services.AddScoped<NotesService>();

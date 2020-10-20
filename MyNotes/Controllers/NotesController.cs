@@ -110,19 +110,26 @@ namespace MyNotes.Controllers
         }
 
         [HttpPut("Notes/{id}/{field}")]
-        public IActionResult SetField(int id, string field, string value)
+        public IActionResult SetField(int id, [Required] string field, string value)
         {
             var note = _notesService.GetNote(id);
             if (note == null) return NotFound();
 
-            if (field == "Subject")
-                note.Subject = value;
-            else if (field == "Content")
-                note.Content = value;
-            else if (field == "IsPublic")
-                note.IsPublic = bool.Parse(value);
-            else
-                _logger.LogWarning("Unrecognized field: {field}", field);
+            switch (field.ToLower())
+            {
+                case "subject":
+                    note.Subject = value;
+                    break;
+                case "content":
+                    note.Content = value;
+                    break;
+                case "ispublic":
+                    note.IsPublic = bool.Parse(value);
+                    break;
+                default:
+                    _logger.LogWarning("Unrecognized field: {field}", field);
+                    break;
+            }
 
             note.Updated = DateTime.Now;
             _notesService.SaveChanges();

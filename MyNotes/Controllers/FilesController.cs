@@ -131,17 +131,17 @@ namespace MyNotes.Controllers
         }
 
         [HttpPut("Files/{id}/{field}")]
-        public IActionResult SetField(int id, string field, string value)
+        public IActionResult SetField(int id, [Required] string field, string value)
         {
             var file = _filesService.GetFile(id);
             if (file == null) return NotFound();
 
-            switch (field)
+            switch (field.ToLower())
             {
-                case "IsPublic":
+                case "ispublic":
                     file.IsPublic = bool.Parse(value);
                     break;
-                case "IsFavorite":
+                case "isfavorite":
                     file.IsFavorite = bool.Parse(value);
                     break;
                 default:

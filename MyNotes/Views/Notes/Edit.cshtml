@@ -71,7 +71,7 @@
         }
         function delTag($btn) {
             $.ajax({
-                url: "@Context.Request.PathBase/Notes/@Model.Id/Tags",
+                url: "@Context.Request.PathBase/notes/@Model.Id/tags",
                 method: "delete",
                 data: { tag: $btn.text() },
                 success: function () {
@@ -113,7 +113,7 @@
                 tooltip: "Save",
                 click: function () {
                     $.ajax({
-                        url: "@Context.Request.PathBase/Notes/@Model.Id/Content",
+                        url: "@Context.Request.PathBase/notes/@Model.Id/content",
                         method: "put",
                         data: { value: $("#Content").val() },
                         success: function () {
@@ -136,7 +136,7 @@
             $("#lock").click(function () {
                 if ($("#unlocked").is(":hidden"))
                     $.ajax({
-                        url: "@Context.Request.PathBase/Notes/@Model.Id/IsPublic",
+                        url: "@Context.Request.PathBase/notes/@Model.Id/IsPublic",
                         method: "put",
                         data: { value: "True" },
                         success: function () {
@@ -146,7 +146,7 @@
                     });
                 else
                     $.ajax({
-                        url: "@Context.Request.PathBase/Notes/@Model.Id/IsPublic",
+                        url: "@Context.Request.PathBase/notes/@Model.Id/IsPublic",
                         method: "put",
                         data: { value: "False" },
                         success: function () {
@@ -159,7 +159,7 @@
                 setStatus(false);
                 delay(function () {
                     $.ajax({
-                    url: "@Context.Request.PathBase/Notes/@Model.Id/Subject",
+                    url: "@Context.Request.PathBase/notes/@Model.Id/subject",
                         method: "put",
                         data: { value: $("#Subject").val() },
                         success: function () {
@@ -175,7 +175,7 @@
                         setStatus(false);
                         delay(function () {
                             $.ajax({
-                                url: "@Context.Request.PathBase/Notes/@Model.Id/Content",
+                                url: "@Context.Request.PathBase/notes/@Model.Id/content",
                                 method: "put",
                                 data: { value: $("#Content").val() },
                                 success: function () {
@@ -211,7 +211,7 @@
                 var tag = $(this).val();
                 if (!tag) return;
                 $.ajax({
-                    url: "@Context.Request.PathBase/Notes/@Model.Id/Tags",
+                    url: "@Context.Request.PathBase/notes/@Model.Id/tags",
                     method: "post",
                     data: { tag },
                     success: function () {
