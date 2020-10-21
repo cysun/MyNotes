@@ -11,7 +11,7 @@
         @if ((await authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded)
         {
             <li class="ml-auto">
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm py-0">
                     <i class="far fa-edit"></i>
                 </a>
             </li>
