@@ -33,7 +33,7 @@ namespace MyNotes.Services
 
         public void DeleteNote(Note note)
         {
-            if (DateTime.Now.AddMinutes(-10) < note.Created)
+            if (note.Content.Length < 200)
                 _db.Notes.Remove(note);
             else
                 note.Deleted = true;
