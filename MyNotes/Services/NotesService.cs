@@ -18,7 +18,8 @@ namespace MyNotes.Services
 
         public List<Note> GetRecentNotes(bool publicOnly = false)
         {
-            return _db.Notes.Where(n => DateTime.Now.AddDays(-21) < n.Updated && (n.IsPublic || n.IsPublic == publicOnly))
+            return _db.Notes.Where(n => DateTime.Now.AddDays(-21) < n.Updated
+                && (n.Published < DateTime.Now || !publicOnly))
                 .Include(n => n.NoteTags)
                 .OrderByDescending(n => n.Updated)
                 .ToList();
@@ -33,7 +34,7 @@ namespace MyNotes.Services
 
         public void DeleteNote(Note note)
         {
-            if (note.Content.Length < 200)
+            if (note.Content == null || note.Content.Length < 200)
                 _db.Notes.Remove(note);
             else
                 note.Deleted = true;

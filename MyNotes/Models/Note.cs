@@ -19,10 +19,11 @@ namespace MyNotes.Models
 
         public string Content { get; set; }
 
-        public bool IsPublic { get; set; }
-
         public DateTime Created { get; set; } = DateTime.Now;
         public DateTime Updated { get; set; } = DateTime.Now;
+
+        public DateTime? Published { get; set; }
+        public bool IsPublic => Published != null && Published < DateTime.Now;
 
         public int ViewCount { get; set; }
 

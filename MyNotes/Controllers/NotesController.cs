@@ -123,8 +123,11 @@ namespace MyNotes.Controllers
                 case "content":
                     note.Content = value;
                     break;
-                case "ispublic":
-                    note.IsPublic = bool.Parse(value);
+                case "published":
+                    if (value == null || value.ToLower() == "null")
+                        note.Published = null;
+                    else
+                        note.Published = DateTime.Parse(value);
                     break;
                 default:
                     _logger.LogWarning("Unrecognized field: {field}", field);
@@ -182,6 +185,6 @@ namespace MyNotes.Models
 
         public string Content { get; set; }
 
-        public bool IsPublic { get; set; }
+        public DateTime? Published { get; set; }
     }
 }
