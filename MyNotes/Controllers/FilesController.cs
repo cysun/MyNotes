@@ -111,7 +111,13 @@ namespace MyNotes.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> DownloadAsync(int id)
+        public async Task<IActionResult> ViewAsync(int id)
+        {
+            return await DownloadAsync(id, true);
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> DownloadAsync(int id, bool inline = false)
         {
             var file = _filesService.GetFile(id);
             if (file == null) return NotFound();
@@ -126,8 +132,9 @@ namespace MyNotes.Controllers
                 _filesService.SaveChanges();
             }
 
-            return PhysicalFile(_filesService.GetDiskFile(file.Id, file.Version),
-                file.ContentType, file.Name);
+            var diskFile = _filesService.GetDiskFile(file.Id, file.Version);
+            return !inline ? PhysicalFile(diskFile, file.ContentType, file.Name) :
+                PhysicalFile(diskFile, file.ContentType);
         }
 
         [HttpPut("Files/{id}/{field}")]
