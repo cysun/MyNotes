@@ -40,11 +40,12 @@ namespace MyNotes.Services
                 note.Deleted = true;
         }
 
-        public List<Note> SearchNotes(string term)
+        public List<Note> SearchNotes(string term, bool publicOnly = false)
         {
             if (string.IsNullOrWhiteSpace(term)) return new List<Note>();
 
             return _db.Notes.FromSqlRaw("SELECT * FROM \"SearchNotes\"({0})", term)
+                .Where(n => n.Published < DateTime.Now || !publicOnly)
                 .Include(n => n.NoteTags) // This is very cool
                 .ToList();
         }

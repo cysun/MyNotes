@@ -123,11 +123,12 @@ namespace MyNotes.Services
 
         public void AddFolder(Models.File folder) => _db.Files.Add(folder);
 
-        public List<Models.File> SearchFiles(string term)
+        public List<Models.File> SearchFiles(string term, bool publicOnly = false)
         {
             if (string.IsNullOrWhiteSpace(term)) return new List<Models.File>();
 
             return _db.Files.FromSqlRaw("SELECT * FROM \"SearchFiles\"({0})", term)
+                .Where(f => f.IsPublic || !publicOnly)
                 .OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name)
                 .ToList();
         }

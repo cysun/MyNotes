@@ -39,7 +39,16 @@
                         </div>
                     </li>
                 </ul>
-                <a asp-controller="Notes" asp-action="Create" class="btn btn-success my-2 my-sm-0">New Note</a>
+                <form asp-controller="Home" asp-action="Search" method="get" class="form-inline my-2 my-lg-0">
+                    <div class="input-group mr-3">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text"><i class="fas fa-search"></i></div>
+                        </div>
+                        <input id="searchAll" class="form-control shadow-none" type="search"
+                               placeholder="Search" name="term" required>
+                    </div>
+                </form>
+                <a asp-controller="Notes" asp-action="Create" class="btn btn-success my-2 my-lg-0">New Note</a>
             </div>
         </nav>
     </header>
