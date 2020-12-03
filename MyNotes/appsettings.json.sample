@@ -12,7 +12,11 @@
     "ClientId": "cysun-mynotes",
     "ClientSecret": "abcd"
   },
-  "FilesDirectory": "D:/Temp/MyNotes/files",
+  "Files": {
+    "Directory": "D:/Temp/MyNotes/files",
+    "AttachmentTypes": [ ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xls" ],
+    "TextTypes": [ ".java", ".sql" ]
+  },
   "Serilog": {
     "Using": [
       "Serilog.Sinks.File"

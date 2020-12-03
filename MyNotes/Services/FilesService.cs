@@ -8,22 +8,50 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace MyNotes.Services
 {
+    public class FilesSettings
+    {
+        public string Directory { get; set; }
+
+        // Attachment Types are files (e.g. doc) whose Content-Disposition header should be
+        // set to attachment even for View File operation. These files cannot be displayed
+        // directly in browser so browsers will try to save them. Providing a file name to
+        // PhysicalFile() will ensure that the file is saved with the right name instead of
+        // having id as its name.
+        public HashSet<string> AttachmentTypes { get; set; }
+
+        // Text Types are files (e.g. java) that should be displayed directly in browser.
+        // Browsers may not display them because of their content types, so we'll overwrite
+        // their content types with "text/plain".
+        public HashSet<string> TextTypes { get; set; }
+    }
+
     public class FilesService
     {
         private readonly AppDbContext _db;
 
         private readonly IMapper _mapper;
 
-        private readonly string _filesDir;
+        private readonly FilesSettings _settings;
 
-        public FilesService(AppDbContext db, IMapper mapper, IConfiguration config)
+        public FilesService(AppDbContext db, IMapper mapper, IOptions<FilesSettings> settings)
         {
             _db = db;
             _mapper = mapper;
-            _filesDir = config["FilesDirectory"];
+            _settings = settings.Value;
+        }
+
+        public bool IsAttachmentType(string fileName)
+        {
+            return _settings.AttachmentTypes.Contains(Path.GetExtension(fileName).ToLower());
+        }
+
+        public bool IsTextType(string fileName)
+        {
+            return _settings.TextTypes.Contains(Path.GetExtension(fileName).ToLower());
         }
 
         public List<Models.File> GetRecentFiles(bool publicOnly = false)
@@ -107,7 +135,7 @@ namespace MyNotes.Services
             }
             _db.SaveChanges();
 
-            string diskFile = Path.Combine(_filesDir, $"{file.Id}-{file.Version}");
+            string diskFile = Path.Combine(_settings.Directory, $"{file.Id}-{file.Version}");
             using (var fileStream = new FileStream(diskFile, FileMode.Create))
             {
                 uploadedFile.CopyTo(fileStream);
@@ -118,7 +146,7 @@ namespace MyNotes.Services
 
         public string GetDiskFile(int fileId, int version)
         {
-            return Path.Combine(_filesDir, $"{fileId}-{version}");
+            return Path.Combine(_settings.Directory, $"{fileId}-{version}");
         }
 
         public void AddFolder(Models.File folder) => _db.Files.Add(folder);

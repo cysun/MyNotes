@@ -92,6 +92,8 @@ namespace MyNotes
 
             services.AddScoped<NotesService>();
             services.AddScoped<TagsService>();
+
+            services.Configure<FilesSettings>(Configuration.GetSection("Files"));
             services.AddScoped<FilesService>();
         }
 

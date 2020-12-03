@@ -133,8 +133,11 @@ namespace MyNotes.Controllers
             }
 
             var diskFile = _filesService.GetDiskFile(file.Id, file.Version);
+
+
+            inline = inline && !_filesService.IsAttachmentType(file.Name);
             return !inline ? PhysicalFile(diskFile, file.ContentType, file.Name) :
-                PhysicalFile(diskFile, file.ContentType);
+                PhysicalFile(diskFile, _filesService.IsTextType(file.Name) ? "text/plain" : file.ContentType);
         }
 
         [HttpPut("Files/{id}/{field}")]
