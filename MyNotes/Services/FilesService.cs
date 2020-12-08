@@ -105,6 +105,13 @@ namespace MyNotes.Services
             return ancestors;
         }
 
+        public List<Models.File> GetChildren(int? parentId, bool folderOnly = false)
+        {
+            return _db.Files.Where(f => f.ParentId == parentId && (f.IsFolder || !folderOnly))
+                .OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name)
+                .ToList();
+        }
+
         public Models.File GetFile(int? parentId, string name)
         {
             return _db.Files.Where(f => f.ParentId == parentId && f.Name == name).FirstOrDefault();

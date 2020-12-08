@@ -72,6 +72,27 @@ namespace MyNotes.Controllers
                 return RedirectToAction("Index");
         }
 
+        public IActionResult Move(int id, int? parentId)
+        {
+            if (id == parentId) return BadRequest();
+
+            var file = _filesService.GetFile(id);
+            if (file == null) return NotFound();
+
+            var parent = parentId != null ? _filesService.GetFile((int)parentId) : null;
+            if (parent != null && !parent.IsFolder)
+                return BadRequest();
+
+            _logger.LogInformation("Move {file} from {oldParent} to {newParent} .", file.Id, file.ParentId, parentId);
+            file.ParentId = parentId;
+            _filesService.SaveChanges();
+
+            if (parentId != null)
+                return RedirectToAction("View", "Folders", new { id = file.ParentId });
+            else
+                return RedirectToAction("Index");
+        }
+
         public IActionResult Delete(int id)
         {
             var file = _filesService.GetFile(id);

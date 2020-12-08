@@ -69,5 +69,10 @@ namespace MyNotes.Controllers
 
             return Ok();
         }
+
+        public List<File> GetChildFolders(int? parentId)
+        {
+            return _filesService.GetChildren(parentId, true);
+        }
     }
 }

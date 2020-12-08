@@ -24,6 +24,9 @@
             <li class="breadcrumb-item active">@Model.Name</li>
         }
         <li class="ml-auto">
+            <button id="move" class="btn btn-primary btn-sm py-0 mr-2" data-toggle="modal" data-target="#moveModal">
+                <i class="fas fa-file-export"></i>
+            </button>
             <button id="delete" class="btn btn-danger btn-sm py-0"><i class="fas fa-trash"></i></button>
         </li>
     </ol>
@@ -54,12 +57,85 @@
     <button type="submit" class="btn btn-primary ml-2">Save</button>
 </form>
 
+<div id="moveModal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Move to <span id="currentFolder"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="folders" data-id="" class="list-group list-group-flush">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button id="doMove" type="button" class="btn btn-primary">Move</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts{
     <script>
+    var paths = []; // current path from root
+    var children; // children of the current folder
+    function getChildFolders() {
+        $.ajax({
+            url: "@Context.Request.PathBase/Folders/GetChildFolders",
+            data: paths[0].id ? { parentId: paths[0].id } : {},
+            success: function (results) {
+                $("#currentFolder").text(paths[0].name);
+                children = results.filter(r => r.id != @Model.Id);
+                if (paths.length > 1)
+                    children.unshift({
+                        id: paths[1].id,
+                        name: ".."
+                    });
+                var items = children.map(child => {
+                    var item = $(`<li class="child list-group-item" data-id="${child.id}">${child.name}</li>`);
+                    item.click(function () {
+                        $(".child").removeClass("active");
+                        $(this).addClass("active");
+                    });
+                    item.dblclick(function () {
+                        if ($(this).text() == "..")
+                            paths.shift();
+                        else
+                            paths.unshift(children.find(c => c.id == $(this).attr("data-id")));
+                        getChildFolders();
+                    });
+                    return item;
+                });
+                $("#folders").empty().append(items);
+            }
+        });
+    }
     $(function () {
         $("#delete").click(function () {
             if (confirm("Are you sure you want to delete this file?"))
                 window.location.href = "@Context.Request.PathBase/files/delete/@Model.Id";
+        });
+        $("#moveModal").on("show.bs.modal", function () {
+            paths.unshift({
+                id: null,
+                name: "/"
+            });
+            getChildFolders();
+        });
+        $("#moveModal").on("hide.bs.modal", function () {
+            paths = [];
+            $("#folders").empty();
+        });
+        $("#doMove").click(function () {
+            var fileId = @Model.Id;
+            var url = `@Context.Request.PathBase/files/move/${fileId}`;
+            var selected = $("li.child.active");
+            var parentId = selected.length == 1 ? selected.attr("data-id") : paths[0].id;
+            if (parentId) url += `?parentId=${parentId}`;
+            window.location.href = url;
         });
     });
     </script>
