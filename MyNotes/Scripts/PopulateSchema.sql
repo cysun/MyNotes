@@ -28,6 +28,10 @@ BEGIN
  END
 $$ LANGUAGE plpgsql;
 
+-- LOWER CASE Index on Tags.Label --
+
+CREATE UNIQUE INDEX "TagsLabelIndex" ON "Tags" (lower("Label"));
+
 -- Auto-Update NoteCount in Tags --
 
 CREATE OR REPLACE FUNCTION "NoteTagsTriggerFunction"() RETURNS TRIGGER AS $$

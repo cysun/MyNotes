@@ -27,7 +27,19 @@ namespace MyNotes.Services
             return _db.Tags.OrderBy(r => r.Label).ToList();
         }
 
+        public Tag GetTag(int id)
+        {
+            return _db.Tags.Find(id);
+        }
+
+        public Tag GetTag(string label)
+        {
+            return _db.Tags.Where(t => t.Label.ToLower() == label.ToLower()).SingleOrDefault();
+        }
+
         public void AddTag(Tag tag) => _db.Tags.Add(tag);
+
+        public void DeleteTag(Tag tag) => _db.Tags.Remove(tag);
 
         public void SaveChanges() => _db.SaveChanges();
     }

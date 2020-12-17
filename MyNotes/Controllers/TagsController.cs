@@ -12,16 +12,16 @@ namespace MyNotes.Controllers
     [Authorize(Policy = "IsOwner")]
     public class TagsController : Controller
     {
-        private readonly TagsService _tagRecordsService;
+        private readonly TagsService _tagsService;
 
-        public TagsController(TagsService tagRecordsService)
+        public TagsController(TagsService tagsService)
         {
-            _tagRecordsService = tagRecordsService;
+            _tagsService = tagsService;
         }
 
         public IActionResult Index()
         {
-            return View(_tagRecordsService.GetTags());
+            return View(_tagsService.GetTags());
         }
 
         [HttpGet]
@@ -33,12 +33,37 @@ namespace MyNotes.Controllers
         [HttpPost]
         public IActionResult Create(string label)
         {
-            _tagRecordsService.AddTag(new Tag
+            var tag = _tagsService.GetTag(label);
+
+            if (tag == null)
             {
-                Label = label,
-                LastUsed = DateTime.Now
-            });
-            _tagRecordsService.SaveChanges();
+                _tagsService.AddTag(new Tag
+                {
+                    Label = label,
+                    LastUsed = DateTime.Now
+                });
+                _tagsService.SaveChanges();
+            }
+            else if (tag.Retired)
+            {
+                tag.Retired = false;
+                _tagsService.SaveChanges();
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Delete(int id)
+        {
+            var tag = _tagsService.GetTag(id);
+            if (tag == null) return NotFound();
+
+            if (tag.NoteCount == 0)
+                _tagsService.DeleteTag(tag);
+            else
+                tag.Retired = true;
+
+            _tagsService.SaveChanges();
 
             return RedirectToAction("Index");
         }

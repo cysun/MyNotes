@@ -130,6 +130,11 @@ namespace MyNotes.Services
                     Size = uploadedFile.Length,
                     ParentId = parentId
                 };
+                if (parentId != null)
+                {
+                    var parent = GetFile((int)parentId);
+                    file.IsPublic = parent.IsPublic;
+                }
                 _db.Files.Add(file);
             }
             else

@@ -1,3 +1,3 @@
-﻿ALTER TABLE "Notes" ADD COLUMN "Published" timestamp without time zone NULL;
-UPDATE "Notes" SET "Published" = CURRENT_TIMESTAMP WHERE "IsPublic" = True;
-ALTER TABLE "Notes" DROP COLUMN "IsPublic";
+﻿ALTER TABLE "Tags" ADD COLUMN "Retired" boolean NOT NULL DEFAULT FALSE;
+
+CREATE UNIQUE INDEX "TagsLabelIndex" ON "Tags" (lower("Label"));

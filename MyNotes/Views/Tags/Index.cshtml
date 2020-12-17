@@ -19,7 +19,8 @@
         <tr>
             <th>Label</th>
             <th>Note Count</th>
-            <th>Last Used</th>
+            <th class="d-none d-md-table-cell">Last Used</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -32,7 +33,12 @@
                         @tagRecord.NoteCount
                     </a>
                 </td>
-                <td>@tagRecord.LastUsed.ToString("d")</td>
+                <td class="d-none d-md-table-cell">@tagRecord.LastUsed.ToString("d")</td>
+                <td>
+                    <a asp-action="Delete" asp-route-id="@tagRecord.Id" class="btn btn-danger btn-sm py-0">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
             </tr>
         }
     </tbody>

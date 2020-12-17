@@ -10,11 +10,14 @@ namespace MyNotes.Models
     {
         public int Id { get; set; }
 
+        [Required]
         [MaxLength(30)]
         public string Label { get; set; }
 
         public int NoteCount { get; set; }
 
         public DateTime LastUsed { get; set; } = DateTime.Now;
+
+        public bool Retired { get; set; }
     }
 }

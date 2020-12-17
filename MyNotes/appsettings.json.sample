@@ -14,7 +14,7 @@
   },
   "Files": {
     "Directory": "D:/Temp/MyNotes/files",
-    "AttachmentTypes": [ ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xls" ],
+    "AttachmentTypes": [ ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx" ],
     "TextTypes": [ ".java", ".sql" ]
   },
   "Serilog": {
