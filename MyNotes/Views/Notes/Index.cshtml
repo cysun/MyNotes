@@ -20,7 +20,11 @@
                     <td>
                         @if (note.IsPublic)
                         {
-                            <i class="fab fa-creative-commons-share text-secondary"></i>
+                            <i class="fab fa-creative-commons-share text-success"></i>
+                        }
+                        else if (note.Published != null)
+                        {
+                            <i class="fab fa-creative-commons-share text-warning"></i>
                         }
                         <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id" class="mr-3">@note.Subject</a>
                         @foreach (var noteTag in note.NoteTags)

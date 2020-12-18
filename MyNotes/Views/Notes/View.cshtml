@@ -7,7 +7,23 @@
 <nav>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-action="Index">Notes</a></li>
-        <li class="breadcrumb-item active">@Model.Subject</li>
+        <li class="breadcrumb-item active">
+            @if (Model.Published != null)
+            {
+                if (Model.IsPublic)
+                {
+                    <span class="text-success">@Model.Subject</span>
+                }
+                else
+                {
+                    <span class="text-warning" title="@Model.Published">@Model.Subject</span>
+                }
+            }
+            else
+            {
+                @Model.Subject
+            }
+        </li>
         @if ((await authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded)
         {
             <li class="ml-auto">
