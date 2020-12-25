@@ -52,8 +52,8 @@ namespace MyNotes
             .AddCookie(opt =>
             {
                 opt.AccessDeniedPath = "/Home/AccessDenied";
+                opt.Cookie.MaxAge = TimeSpan.FromDays(90);
             })
-            //.AddCookie("Cookies")
             .AddOpenIdConnect("oidc", options =>
             {
                 options.Authority = Configuration["OIDC:Authority"];
