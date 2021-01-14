@@ -1,3 +1,2 @@
-﻿ALTER TABLE "Tags" ADD COLUMN "Retired" boolean NOT NULL DEFAULT FALSE;
-
-CREATE UNIQUE INDEX "TagsLabelIndex" ON "Tags" (lower("Label"));
+﻿ALTER TABLE "Notes" ADD COLUMN "Summary" text NULL;
+ALTER TABLE "Notes" ADD COLUMN "IsBlog" boolean NOT NULL DEFAULT FALSE;

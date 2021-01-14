@@ -1,0 +1,37 @@
+﻿@model NoteInputModel
+@{
+    ViewData["Title"] = $"MyNotes - Edit Blog Summary";
+}
+
+<nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Notes" asp-action="Index">Notes</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Notes" asp-action="View" asp-route-id="@Model.Id">@Model.Subject</a></li>
+        <li class="breadcrumb-item active">Edit Blog Summary</li>
+    </ol>
+</nav>
+
+<form method="post">
+    <div class="form-group">
+        <textarea id="summary" name="summary" class="form-control">@Model.Summary</textarea>
+    </div>
+    <a asp-controller="Notes" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="btn btn-primary ml-2">Save</button>
+</form>
+
+@section StyleSheets{
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+}
+@section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+    <script>
+        $(function () {
+            $("#summary").summernote({
+                height: 200,
+                toolbar: [
+                    ['font', ['bold', 'italic', 'underline', 'link']],
+                ]
+            });
+        });
+    </script>
+}

@@ -9,6 +9,7 @@
         else
             publishBtn = "btn-warning";
     }
+    var blogBtn = Model.IsBlog ? "btn-success" : "btn-secondary";
 }
 @section StyleSheets{
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
@@ -44,7 +45,7 @@
             }
         </select>
     </div>
-    <div class="input-group">
+    <div class="input-group mr-3">
         <div class="input-group-prepend">
             <button id="publish" class="btn @publishBtn shadow-none"><i class="fab fa-creative-commons-share"></i></button>
         </div>
@@ -53,6 +54,7 @@
             <div id="unpublish" class="input-group-text"><i class="fas fa-times"></i></div>
         </div>
     </div>
+    <a asp-controller="Blogs" asp-action="Edit" asp-route-id="@Model.Id" class="btn @blogBtn"><i class="fas fa-blog"></i></a>
 </div>
 
 <form>

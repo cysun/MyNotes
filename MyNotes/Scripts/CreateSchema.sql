@@ -31,6 +31,8 @@ CREATE TABLE "Notes" (
     "Updated" timestamp without time zone NOT NULL,
     "Published" timestamp without time zone NULL,
     "ViewCount" integer NOT NULL,
+    "Summary" text NULL,
+    "IsBlog" boolean NOT NULL DEFAULT FALSE,
     "Deleted" boolean NOT NULL,
     CONSTRAINT "PK_Notes" PRIMARY KEY ("Id")
 );
@@ -67,7 +69,7 @@ CREATE TABLE "NoteTags" (
 CREATE INDEX "IX_Files_ParentId" ON "Files" ("ParentId");
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20201217224715_InitialSchema', '5.0.1');
+VALUES ('20210113051616_InitialSchema', '5.0.1');
 
 COMMIT;
 

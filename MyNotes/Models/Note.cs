@@ -27,6 +27,9 @@ namespace MyNotes.Models
 
         public int ViewCount { get; set; }
 
+        public string Summary { get; set; }
+        public bool IsBlog { get; set; }
+
         public bool Deleted { get; set; }
     }
 

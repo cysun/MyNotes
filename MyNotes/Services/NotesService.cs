@@ -58,6 +58,15 @@ namespace MyNotes.Services
                 .ToList();
         }
 
+        public List<Note> GetBlogs(int limit = 4)
+        {
+            return _db.Notes.Where(n => n.IsBlog && n.Published < DateTime.Now)
+                .Include(n => n.NoteTags)
+                .OrderByDescending(n => n.Published)
+                .Take(limit)
+                .ToList();
+        }
+
         public void SaveChanges() => _db.SaveChanges();
     }
 }

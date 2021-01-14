@@ -186,5 +186,8 @@ namespace MyNotes.Models
         public string Content { get; set; }
 
         public DateTime? Published { get; set; }
+
+        public string Summary { get; set; }
+        public bool IsBlog { get; set; }
     }
 }
