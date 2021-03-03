@@ -10,7 +10,7 @@
     @foreach (var blog in Model)
     {
         <div class="col-md-6 mb-4">
-            <div class="card">
+            <div class="card h-100">
                 <div class="card-body">
                     <h5>@blog.Subject</h5>
                     @Html.Raw(@blog.Summary)

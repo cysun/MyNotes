@@ -37,7 +37,10 @@
 
 <table class="table table-hover">
     <thead>
-        <tr><th>Name</th><th>Size</th><th>Updated</th><th></th></tr>
+        <tr><th>Name</th>
+        <th class="d-none d-lg-table-cell">Size</th>
+        <th class="d-none d-lg-table-cell">Updated</th>
+        <th></th></tr>
     </thead>
     <tbody>
         @foreach (var file in Model)
@@ -51,7 +54,7 @@
                         <i class="folder @icon fa-folder-open mr-2" style="color: orange;" data-file-id="@file.Id"></i>
                         <a asp-controller="Folders" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
                     </td>
-                    <td></td>
+                    <td class="d-none d-lg-table-cell"></td>
                 }
                 else
                 {
@@ -63,12 +66,12 @@
                             <span class="badge badge-info ml-2">v@(file.Version)</span>
                         }
                     </td>
-                    <td>@file.Size</td>
+                    <td class="d-none d-lg-table-cell">@file.Size</td>
                 }
-                <td>@file.Updated.ToString("g")</td>
+                <td class="d-none d-lg-table-cell">@file.Updated.ToString("g")</td>
                 <td>
                     <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id"
-                       class="btn btn-primary btn-sm py-0">
+                       class="btn btn-primary btn-sm py-0 d-none d-md-inline">
                         <i class="far fa-edit"></i>
                     </a>
                     @if (!file.IsFolder)
