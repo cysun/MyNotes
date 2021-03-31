@@ -8,6 +8,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace MyNotes.Services
@@ -34,13 +35,15 @@ namespace MyNotes.Services
         private readonly AppDbContext _db;
 
         private readonly IMapper _mapper;
+        private readonly ILogger<FilesService> _logger;
 
         private readonly FilesSettings _settings;
 
-        public FilesService(AppDbContext db, IMapper mapper, IOptions<FilesSettings> settings)
+        public FilesService(AppDbContext db, IMapper mapper, ILogger<FilesService> logger, IOptions<FilesSettings> settings)
         {
             _db = db;
             _mapper = mapper;
+            _logger = logger;
             _settings = settings.Value;
         }
 
@@ -136,6 +139,7 @@ namespace MyNotes.Services
                     file.IsPublic = parent.IsPublic;
                 }
                 _db.Files.Add(file);
+                _logger.LogDebug($"Uploading new file: {name}");
             }
             else
             {
@@ -144,14 +148,17 @@ namespace MyNotes.Services
                 file.Size = uploadedFile.Length;
                 file.Updated = file.Created = DateTime.Now;
                 file.Version++;
+                _logger.LogDebug($"Updating existing file: {name}");
             }
             _db.SaveChanges();
+            _logger.LogInformation($"File {name} added to database");
 
             string diskFile = Path.Combine(_settings.Directory, $"{file.Id}-{file.Version}");
             using (var fileStream = new FileStream(diskFile, FileMode.Create))
             {
                 uploadedFile.CopyTo(fileStream);
             }
+            _logger.LogInformation($"File {name} saved to disk");
 
             return file;
         }
