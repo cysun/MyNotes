@@ -118,6 +118,7 @@
             // https://stackoverflow.com/questions/58815724/how-to-integrate-dropzone-js-with-asp-net-core-mvc
             paramName: () => "uploadedFiles",
             parallelUploads: 10,
+            timeout: 180000, // default timeout is 30s (30000ms) which is not enough for uploading large files
             queuecomplete: function () {
                 location.reload();
             }
