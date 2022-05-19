@@ -1,10 +1,10 @@
-﻿@model NoteInputModel
+@model NoteInputModel
 @{
     ViewData["Title"] = $"MyNotes - {Model.Subject}";
     var publishBtn = "btn-secondary";
     if (Model.Published != null)
     {
-        if (Model.Published < DateTime.Now)
+        if (Model.Published < DateTime.UtcNow)
             publishBtn = "btn-success";
         else
             publishBtn = "btn-warning";

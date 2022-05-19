@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Razor.Extensions;
-using Microsoft.Extensions.Logging;
 using MyNotes.Models;
 using MyNotes.Services;
 
@@ -60,7 +54,7 @@ namespace MyNotes.Controllers
             if (!ModelState.IsValid) return View(input);
 
             var note = _mapper.Map<Note>(input);
-            note.Updated = note.Created = DateTime.Now;
+            note.Updated = note.Created = DateTime.UtcNow;
             _notesService.AddNote(note);
             _notesService.SaveChanges();
 
@@ -127,14 +121,14 @@ namespace MyNotes.Controllers
                     if (value == null || value.ToLower() == "null")
                         note.Published = null;
                     else
-                        note.Published = DateTime.Parse(value);
+                        note.Published = DateTime.Parse(value).ToUniversalTime();
                     break;
                 default:
                     _logger.LogWarning("Unrecognized field: {field}", field);
                     break;
             }
 
-            note.Updated = DateTime.Now;
+            note.Updated = DateTime.UtcNow;
             _notesService.SaveChanges();
 
             return Ok();

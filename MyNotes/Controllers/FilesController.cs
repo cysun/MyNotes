@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using MyNotes.Models;
 using MyNotes.Services;
 
@@ -34,7 +28,7 @@ namespace MyNotes.Controllers
 
         public IActionResult Index(string term)
         {
-            List<File> files;
+            List<Models.File> files;
 
             if (string.IsNullOrWhiteSpace(term))
                 files = _filesService.GetFiles();
@@ -63,7 +57,7 @@ namespace MyNotes.Controllers
             if (file == null) return NotFound();
 
             _mapper.Map(input, file);
-            file.Updated = DateTime.Now;
+            file.Updated = DateTime.UtcNow;
             _filesService.SaveChanges();
 
             if (file.ParentId != null)
@@ -124,7 +118,7 @@ namespace MyNotes.Controllers
             if (parentId != null)
             {
                 var parent = _filesService.GetFile((int)parentId);
-                parent.Updated = DateTime.Now;
+                parent.Updated = DateTime.UtcNow;
                 _filesService.SaveChanges();
             }
 
@@ -180,7 +174,7 @@ namespace MyNotes.Controllers
                     return BadRequest();
             }
 
-            file.Updated = DateTime.Now;
+            file.Updated = DateTime.UtcNow;
             _filesService.SaveChanges();
 
             return Ok();

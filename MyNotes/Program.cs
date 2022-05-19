@@ -1,37 +1,121 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Logging;
+using MyNotes.Services;
 using Serilog;
 
-namespace MyNotes
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+var builder = WebApplication.CreateBuilder(args);
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    // Due to recent enforcement of "SameSite=None; Secure" by the major browsers
-                    // (https://blog.chromium.org/2019/10/developers-get-ready-for-new.html),
-                    // AIS must run with HTTPS even in dev environment. Use the following command
-                    // to create a trusted dev certificate:
-                    //      dotnet dev-certs https --trust
-                    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == Environments.Development)
-                        webBuilder.UseStartup<Startup>();
-                    else
-                        webBuilder.UseStartup<Startup>().UseUrls("http://localhost:5004");
-                })
-                .UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration
-                    .ReadFrom.Configuration(hostingContext.Configuration));
+var environment = builder.Environment;
+var configuration = builder.Configuration;
+var services = builder.Services;
+
+if (!environment.IsDevelopment())
+    builder.WebHost.UseUrls("http://localhost:5004");
+
+builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
+    loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
+
+// Configure Services
+
+services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 100 * 1024 * 1024; // 100MB (default 30MB)
+});
+
+services.AddControllersWithViews();
+
+services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+services.AddAuthentication(options =>
+{
+    options.DefaultScheme = "Cookies";
+    options.DefaultChallengeScheme = "oidc";
+})
+.AddCookie(opt =>
+{
+    opt.AccessDeniedPath = "/Home/AccessDenied";
+    opt.Cookie.MaxAge = TimeSpan.FromDays(90);
+})
+.AddOpenIdConnect("oidc", options =>
+{
+    options.Authority = configuration["OIDC:Authority"];
+    options.ClientId = configuration["OIDC:ClientId"];
+    options.ClientSecret = configuration["OIDC:ClientSecret"];
+    options.ResponseType = "code";
+    options.Scope.Add("email");
+    options.SaveTokens = true;
+    options.GetClaimsFromUserInfoEndpoint = true;
+
+    options.Events = new OpenIdConnectEvents
+    {
+        OnRemoteFailure = context =>
+        {
+            context.Response.Redirect("/");
+            context.HandleResponse();
+            return Task.FromResult(0);
+        }
+    };
+
+    if (environment.IsDevelopment())
+    {
+        options.RequireHttpsMetadata = false;
     }
+});
+
+services.AddAuthorization(options =>
+{
+    options.AddPolicy("IsOwner", policy =>
+        policy.RequireClaim("email", configuration["Application:Owner"]));
+});
+
+services.AddRouting(options => options.LowercaseUrls = true);
+
+services.AddAutoMapper(config => config.AddProfile<MapperProfile>());
+
+services.AddScoped<NotesService>();
+services.AddScoped<TagsService>();
+
+services.Configure<FilesSettings>(configuration.GetSection("Files"));
+services.AddScoped<FilesService>();
+
+// Build App
+
+var app = builder.Build();
+
+// Configure Middleware Pipeline
+
+if (environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+    IdentityModelEventSource.ShowPII = true;
 }
+else
+{
+    app.UseExceptionHandler("/Home/Error");
+}
+
+app.UseSerilogRequestLogging();
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+app.UsePathBase(configuration["Application:PathBase"]);
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Run App
+
+app.Run();

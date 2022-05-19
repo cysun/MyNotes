@@ -1,26 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using MyNotes.Models;
 
-namespace MyNotes.Services
+namespace MyNotes.Services;
+
+public class MapperProfile : Profile
 {
-    public class MapperProfile : Profile
+    public MapperProfile()
     {
-        public MapperProfile()
-        {
-            CreateMap<Note, NoteInputModel>();
-            CreateMap<NoteInputModel, Note>().ForMember(i => i.Id, opt => opt.Ignore());
+        CreateMap<Note, NoteInputModel>();
+        CreateMap<NoteInputModel, Note>().ForMember(dest => dest.Id, opt => opt.Ignore());
 
-            CreateMap<File, FileInputModel>();
-            CreateMap<FileInputModel, File>()
-                .ForMember(i => i.Id, opt => opt.Ignore())
-                .ForMember(i => i.ParentId, opt => opt.Ignore())
-                .ForMember(i => i.IsFolder, opt => opt.Ignore());
+        CreateMap<Models.File, FileInputModel>();
+        CreateMap<FileInputModel, Models.File>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.ParentId, opt => opt.Ignore())
+            .ForMember(dest => dest.IsFolder, opt => opt.Ignore());
 
-            CreateMap<File, FileHistory>().ForMember(h => h.FileId, opt => opt.MapFrom(f => f.Id));
-        }
+        CreateMap<Models.File, FileHistory>().ForMember(h => h.FileId, opt => opt.MapFrom(f => f.Id));
     }
 }
