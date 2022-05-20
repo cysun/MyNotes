@@ -84,11 +84,18 @@ services.AddScoped<TagsService>();
 services.Configure<FilesSettings>(configuration.GetSection("Files"));
 services.AddScoped<FilesService>();
 
+services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
+
 // Build App
 
 var app = builder.Build();
 
 // Configure Middleware Pipeline
+
+app.UseForwardedHeaders();
 
 if (environment.IsDevelopment())
 {
@@ -101,10 +108,6 @@ else
 }
 
 app.UseSerilogRequestLogging();
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
 
 app.UsePathBase(configuration["Application:PathBase"]);
 app.UseStaticFiles();
