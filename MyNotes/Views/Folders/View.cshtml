@@ -48,7 +48,11 @@
             <th>Name</th>
             <th class="d-none d-lg-table-cell">Size</th>
             <th class="d-none d-lg-table-cell">Updated</th>
-            <th></th>
+            <th>
+                <button id="deleteToggle" class="btn btn-outline-secondary btn-sm d-none d-md-inline shadow-none">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -81,6 +85,9 @@
                 <td>
                     @if (Context.User.Identity.IsAuthenticated)
                     {
+                        <button data-id="@file.Id" class="delete btn btn-danger btn-sm me-2">
+                            <i class="fas fa-trash"></i>
+                        </button>
                         <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id"
                    class="btn btn-primary btn-sm me-2 d-none d-md-inline">
                             <i class="far fa-edit"></i>
@@ -142,7 +149,7 @@
                         data: {
                             name,
                             parentId: @Model.Id
-                                },
+                                                                                },
                         success: function() {
                             location.reload();
                         }
@@ -177,6 +184,20 @@
                         $("#isPublic").toggleClass("fa-lock-open");
                     }
                 });
+            });
+            $(".delete").hide();
+            $(".delete").click(function() {
+                var id = $(this).attr("data-id");
+                var row = $(this).closest("tr");
+                $.ajax({
+                    url: `@Context.Request.PathBase/files/ajaxdelete/${id}`,
+                    success: function() {
+                        row.remove();
+                    }
+                });
+            });
+            $("#deleteToggle").click(function() {
+                $(".delete").toggle();
             });
         });
     </script>

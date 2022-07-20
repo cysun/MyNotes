@@ -109,6 +109,25 @@ namespace MyNotes.Controllers
                 return RedirectToAction("Index");
         }
 
+        public IActionResult AjaxDelete(int id)
+        {
+            var file = _filesService.GetFile(id);
+            if (file == null) return NotFound();
+
+            if (file.IsFolder)
+            {
+                var filesDeleted = _filesService.DeleteFolder(id);
+                _logger.LogInformation("{n} files deleted.", filesDeleted);
+            }
+            else
+            {
+                var versionsDeleted = _filesService.DeleteFile(id);
+                _logger.LogInformation("{n} versions of {file} deleted.", versionsDeleted, id);
+            }
+
+            return Ok();
+        }
+
         [HttpPost]
         public IActionResult Upload(int? parentId, IFormFile[] uploadedFiles)
         {
