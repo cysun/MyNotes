@@ -11,18 +11,16 @@ namespace MyNotes.Controllers
     public class NotesController : Controller
     {
         private readonly NotesService _notesService;
-        private readonly TagsService _tagsService;
 
         private readonly IAuthorizationService _authorizationService;
 
         private readonly IMapper _mapper;
         private readonly ILogger<NotesController> _logger;
 
-        public NotesController(NotesService notesService, TagsService tagsService,
-            IAuthorizationService authorizationService, IMapper mapper, ILogger<NotesController> logger)
+        public NotesController(NotesService notesService, IAuthorizationService authorizationService,
+            IMapper mapper, ILogger<NotesController> logger)
         {
             _notesService = notesService;
-            _tagsService = tagsService;
             _authorizationService = authorizationService;
             _mapper = mapper;
             _logger = logger;
@@ -34,8 +32,6 @@ namespace MyNotes.Controllers
 
             if (string.IsNullOrWhiteSpace(term))
                 notes = _notesService.GetRecentNotes();
-            else if (term.StartsWith("tag:"))
-                notes = _notesService.SearchNotesByTag(term.Substring("tag:".Length));
             else
                 notes = _notesService.SearchNotes(term);
 
@@ -84,11 +80,6 @@ namespace MyNotes.Controllers
             var note = _notesService.GetNote(id);
             if (note == null) return NotFound();
 
-            var tags = _tagsService.GetTags();
-            var noteTagLabels = note.NoteTags.Select(t => t.Label).ToHashSet();
-            ViewBag.Tags = tags.Where(t => !noteTagLabels.Contains(t.Label)).ToList();
-            ViewBag.NoteTags = note.NoteTags;
-
             return View(_mapper.Map<NoteInputModel>(note));
         }
 
@@ -129,36 +120,6 @@ namespace MyNotes.Controllers
             }
 
             note.Updated = DateTime.UtcNow;
-            _notesService.SaveChanges();
-
-            return Ok();
-        }
-
-        [HttpPost("Notes/{id}/Tags")]
-        public IActionResult AddTag(int id, string tag)
-        {
-            var note = _notesService.GetNote(id);
-            if (note == null) return NotFound();
-
-            if (note.NoteTags.Where(t => t.Label == tag).Count() == 0)
-            {
-                note.NoteTags.Add(new NoteTag
-                {
-                    Label = tag
-                });
-                _notesService.SaveChanges();
-            }
-
-            return Ok();
-        }
-
-        [HttpDelete("Notes/{id}/Tags")]
-        public IActionResult DeleteTag(int id, string tag)
-        {
-            var note = _notesService.GetNote(id);
-            if (note == null) return NotFound();
-
-            note.NoteTags.RemoveAll(t => t.Label == tag);
             _notesService.SaveChanges();
 
             return Ok();

@@ -16,14 +16,13 @@ public class NotesService
     {
         return _db.Notes.Where(n => DateTime.UtcNow.AddDays(-21) < n.Updated
             && (n.Published < DateTime.UtcNow || !publicOnly))
-            .Include(n => n.NoteTags)
             .OrderByDescending(n => n.Updated)
             .ToList();
     }
 
     public Note GetNote(int id)
     {
-        return _db.Notes.Where(n => n.Id == id).Include(n => n.NoteTags).SingleOrDefault();
+        return _db.Notes.Where(n => n.Id == id).SingleOrDefault();
     }
 
     public void AddNote(Note note) => _db.Notes.Add(note);
@@ -42,22 +41,12 @@ public class NotesService
 
         return _db.Notes.FromSqlRaw("SELECT * FROM \"SearchNotes\"({0})", term)
             .Where(n => n.Published < DateTime.UtcNow || !publicOnly)
-            .Include(n => n.NoteTags) // This is very cool
             .ToList();
     }
 
-    public List<Note> SearchNotesByTag(string label)
-    {
-        return _db.Notes.Where(n => n.NoteTags.Any(t => t.Label == label))
-            .Include(n => n.NoteTags)
-            .OrderByDescending(n => n.Updated)
-            .ToList();
-    }
-
-    public List<Note> GetBlogs(int limit = 4)
+    public List<Note> GetBlogs(int limit = 20)
     {
         return _db.Notes.Where(n => n.IsBlog && n.Published < DateTime.UtcNow)
-            .Include(n => n.NoteTags)
             .OrderByDescending(n => n.Published)
             .Take(limit)
             .ToList();

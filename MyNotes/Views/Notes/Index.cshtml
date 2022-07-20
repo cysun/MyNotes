@@ -25,11 +25,6 @@
                             <i class="fab fa-creative-commons-share text-warning"></i>
                         }
                         <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id" class="mr-3">@note.Subject</a>
-                        @foreach (var noteTag in note.NoteTags)
-                        {
-                            <a asp-controller="Notes" asp-action="Index" asp-route-term="tag:@noteTag.Label"
-                   class="badge badge-success">@noteTag.Label</a>
-                        }
                     </td>
                     <td class="d-none d-lg-table-cell">@note.Updated.ToString("d")</td>
                     <td class="d-none d-md-table-cell">

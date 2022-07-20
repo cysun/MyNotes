@@ -79,7 +79,6 @@ services.AddRouting(options => options.LowercaseUrls = true);
 services.AddAutoMapper(config => config.AddProfile<MapperProfile>());
 
 services.AddScoped<NotesService>();
-services.AddScoped<TagsService>();
 
 services.Configure<FilesSettings>(configuration.GetSection("Files"));
 services.AddScoped<FilesService>();

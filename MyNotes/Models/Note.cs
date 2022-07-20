@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyNotes.Models;
 
@@ -10,8 +9,6 @@ public class Note
     [Required]
     [MaxLength(80)]
     public string Subject { get; set; }
-
-    public List<NoteTag> NoteTags { get; set; }
 
     public string Content { get; set; }
 
@@ -27,15 +24,4 @@ public class Note
     public bool IsBlog { get; set; }
 
     public bool Deleted { get; set; }
-}
-
-[Table("NoteTags")]
-public class NoteTag
-{
-    public int NoteId { get; set; }
-    public Note Note { get; set; }
-
-    [Required]
-    [MaxLength(30)]
-    public string Label { get; set; }
 }

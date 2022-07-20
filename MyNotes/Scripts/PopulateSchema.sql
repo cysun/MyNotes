@@ -1,6 +1,3 @@
-﻿ALTER TABLE "NoteTags" ADD CONSTRAINT "FK_NoteTags_Tags_Label"
-    FOREIGN KEY ("Label") REFERENCES "Tags" ("Label") ON DELETE CASCADE;
-
 -- FTS on Notes --
 
 ALTER TABLE "Notes" ADD COLUMN tsv tsvector;
@@ -27,27 +24,6 @@ BEGIN
     RETURN;
  END
 $$ LANGUAGE plpgsql;
-
--- LOWER CASE Index on Tags.Label --
-
-CREATE UNIQUE INDEX "TagsLabelIndex" ON "Tags" (lower("Label"));
-
--- Auto-Update NoteCount in Tags --
-
-CREATE OR REPLACE FUNCTION "NoteTagsTriggerFunction"() RETURNS TRIGGER AS $$
-BEGIN
-    IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
-        UPDATE "Tags" SET "NoteCount" = "NoteCount"+1, "LastUsed" = CURRENT_TIMESTAMP WHERE "Label" = NEW."Label";
-    ELSIF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
-        UPDATE "Tags" SET "NoteCount" = "NoteCount"-1, "LastUsed" = CURRENT_TIMESTAMP WHERE "Label" = OLD."Label";
-    END IF;
-    RETURN NULL;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER "NoteTagsTrigger"
-    AFTER INSERT OR DELETE OR UPDATE ON "NoteTags"
-    FOR EACH ROW EXECUTE PROCEDURE "NoteTagsTriggerFunction"();
 
 -- Start File Id from 1000000 --
 
