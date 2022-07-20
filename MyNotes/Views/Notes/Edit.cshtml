@@ -11,65 +11,50 @@
     }
     var blogBtn = Model.IsBlog ? "btn-success" : "btn-secondary";
 }
-@section StyleSheets{
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
-}
 
 <nav>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-action="Index">Notes</a></li>
         <li class="breadcrumb-item"><a asp-action="View" asp-route-id="@Model.Id">@Model.Subject</a></li>
-        <li class="breadcrumb-item active">Edit</li>
-        <li class="ml-auto">
-            <button id="delete" class="btn btn-danger btn-sm py-0"><i class="fas fa-trash"></i></button>
+        <li class="breadcrumb-item active me-auto">Edit</li>
+        <li>
+            <button id="delete" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
         </li>
     </ol>
 </nav>
 
 <div class="btn-toolbar mb-3">
-    <button id="status" type="button" class="btn btn-success mr-3">
+    <button id="status" type="button" class="btn btn-success me-2">
         <i class="fas fa-check-circle"></i>
     </button>
-    <div id="noteTags" class="input-group mr-2">
-        @foreach (var noteTag in ViewBag.NoteTags)
-        {
-            <button type="button" class="delTag btn btn-secondary mr-2">@noteTag.Label</button>
-        }
-    </div>
-    <div class="input-group mr-3">
-        <select id="tags" class="form-control">
-            <option></option>
-            @foreach (var tag in ViewBag.Tags)
-            {
-                <option>@tag.Label</option>
-            }
-        </select>
-    </div>
-    <div class="input-group mr-3">
-        <div class="input-group-prepend">
-            <button id="publish" class="btn @publishBtn shadow-none"><i class="fab fa-creative-commons-share"></i></button>
-        </div>
+    <div class="input-group me-2">
+        <button id="publish" class="btn @publishBtn shadow-none"><i class="fab fa-creative-commons-share"></i></button>
         <input asp-for="Published" class="form-control" />
-        <div class="input-group-append">
-            <div id="unpublish" class="input-group-text"><i class="fas fa-times"></i></div>
-        </div>
+        <span id="unpublish" class="input-group-text"><i class="fas fa-times"></i></span>
     </div>
     <a asp-controller="Blogs" asp-action="Edit" asp-route-id="@Model.Id" class="btn @blogBtn"><i class="fas fa-blog"></i></a>
 </div>
 
 <form>
-    <div class="form-group">
+    <div class="mb-3">
         <input asp-for="Subject" class="form-control">
     </div>
-    <div class="form-group">
+    <div class="mb-3">
         <textarea asp-for="Content"></textarea>
     </div>
 </form>
 
-@section Scripts{
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
-    <script src="https://unpkg.com/prettier@2.1.2/standalone.js"></script>
-    <script src="https://unpkg.com/prettier@2.1.2/parser-html.js"></script>
+@section StyleSheets{
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs5.min.css"
+      integrity="sha512-ngQ4IGzHQ3s/Hh8kMyG4FC74wzitukRMIcTOoKT3EyzFZCILOPF0twiXOQn75eDINUfKBYmzYn2AA8DkAk8veQ=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+}
+    @section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs5.min.js"
+        integrity="sha512-6F1RVfnxCprKJmfulcxxym1Dar5FsT/V2jiEUvABiaEiFWoQ8yHvqRM/Slf0qJKiwin6IDQucjXuolCfCKnaJQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/prettier@2.7.1/standalone.js"></script>
+    <script src="https://unpkg.com/prettier@2.7.1/parser-html.js"></script>
     <script>
         function setStatus(saved) {
             var status = $("#status").hasClass("btn-success");
@@ -87,32 +72,21 @@
                     .empty()
                     .append("<i class='fas fa-exclamation-circle'></i>");
         }
-        function delTag($btn) {
-            $.ajax({
-                url: "@Context.Request.PathBase/notes/@Model.Id/tags",
-                method: "delete",
-                data: { tag: $btn.text() },
-                success: function () {
-                    $("#tags").append(`<option>${$btn.text()}</option>)`);
-                    $btn.remove();
-                }
-            });
-        }
         // Code from https://stackoverflow.com/questions/14042193/how-to-trigger-an-event-in-input-text-after-i-stop-typing-writing
-        var delay = (function () {
+        var delay = (function() {
             var timer = 0;
-            return function (callback, ms) {
+            return function(callback, ms) {
                 clearTimeout(timer);
                 timer = setTimeout(callback, ms);
             };
         })();
         // Code from https://github.com/summernote/summernote/issues/3409
-        var formatButton = function (context) {
+        var formatButton = function(context) {
             var ui = $.summernote.ui;
             var button = ui.button({
                 contents: "<i class='fas fa-hand-sparkles'></i>",
                 tooltip: "Format HTML",
-                click: function () {
+                click: function() {
                     if (prettier && prettierPlugins) {
                         let content = prettier.format($("#Content").summernote("code"), {
                             parser: "html",
@@ -124,17 +98,17 @@
             });
             return button.render();
         };
-        var saveButton = function (context) {
+        var saveButton = function(context) {
             var ui = $.summernote.ui;
             var button = ui.button({
                 contents: "<i class='fas fa-save'></i>",
                 tooltip: "Save",
-                click: function () {
+                click: function() {
                     $.ajax({
                         url: "@Context.Request.PathBase/notes/@Model.Id/content",
                         method: "put",
                         data: { value: $("#Content").val() },
-                        success: function () {
+                        success: function() {
                             setStatus(true);
                         }
                     });
@@ -142,15 +116,15 @@
             });
             return button.render();
         };
-        $(function () {
-            $("#Subject").keyup(function () {
+        $(function() {
+            $("#Subject").keyup(function() {
                 setStatus(false);
-                delay(function () {
+                delay(function() {
                     $.ajax({
-                    url: "@Context.Request.PathBase/notes/@Model.Id/subject",
+                        url: "@Context.Request.PathBase/notes/@Model.Id/subject",
                         method: "put",
                         data: { value: $("#Subject").val() },
-                        success: function () {
+                        success: function() {
                             setStatus(true);
                         }
                     });
@@ -159,14 +133,14 @@
             $("#Content").summernote({
                 height: 600,
                 callbacks: {
-                    onChange: function () {
+                    onChange: function() {
                         setStatus(false);
-                        delay(function () {
+                        delay(function() {
                             $.ajax({
                                 url: "@Context.Request.PathBase/notes/@Model.Id/content",
                                 method: "put",
                                 data: { value: $("#Content").val() },
-                                success: function () {
+                                success: function() {
                                     setStatus(true);
                                 }
                             });
@@ -194,38 +168,17 @@
                     save: saveButton
                 }
             });
-            $(".delTag").click(function () {
-                delTag($(this));
-            })
-            $("#tags").change(function () {
-                var tag = $(this).val();
-                if (!tag) return;
-                $.ajax({
-                    url: "@Context.Request.PathBase/notes/@Model.Id/tags",
-                    method: "post",
-                    data: { tag },
-                    success: function () {
-                        var btn = $("<button type='button' class='delTag btn btn-secondary mr-2'></button>");
-                        btn.text(tag);
-                        btn.click(function () {
-                            delTag(btn);
-                        });
-                        $("#noteTags").append(btn);
-                        $("option:selected").remove();
-                    }
-                });
-            });
-            $("#delete").click(function () {
+            $("#delete").click(function() {
                 if (confirm("Are you sure you want to delete this note?"))
                     window.location.href = "@Context.Request.PathBase/notes/delete/@Model.Id";
             });
-            $("#unpublish").click(function () {
+            $("#unpublish").click(function() {
                 if ($("#Published").val()) {
                     $.ajax({
                         url: "@Context.Request.PathBase/notes/@Model.Id/published",
                         method: "put",
                         data: { value: null },
-                        success: function () {
+                        success: function() {
                             $("#Published").val("");
                             $("#publish").removeClass("btn-success btn-warning");
                             $("#publish").addClass("btn-secondary");
@@ -233,14 +186,14 @@
                     });
                 }
             });
-            $("#publish").click(function () {
+            $("#publish").click(function() {
                 var publishDate = $("#Published").val();
                 if (publishDate) {
                     $.ajax({
                         url: "@Context.Request.PathBase/notes/@Model.Id/published",
                         method: "put",
                         data: { value: publishDate },
-                        success: function () {
+                        success: function() {
                             $("#publish").removeClass("btn-secondary btn-success btn-warning");
                             if (new Date(publishDate) <= Date.now())
                                 $("#publish").addClass("btn-success");

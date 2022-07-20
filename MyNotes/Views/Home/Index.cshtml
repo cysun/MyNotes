@@ -2,7 +2,7 @@
     ViewData["Title"] = "MyNotes";
 }
 <div class="row">
-    <div class="col-md-8">
+    <div class="col-lg-8">
         <h4 class="text-center">Recent Notes</h4>
         @if (ViewBag.Notes.Count == 0)
         {
@@ -21,38 +21,8 @@
                                     <i class="fab fa-creative-commons-share text-success"></i>
                                 }
                                 <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id" class="mr-3">@note.Subject</a>
-                                @foreach (var noteTag in note.NoteTags)
-                                {
-                                    <a asp-controller="Notes" asp-action="Index" asp-route-term="tag:@noteTag.Label"
-                                       class="badge badge-success">@noteTag.Label</a>
-                                }
                             </td>
-                            <td class="d-none d-lg-table-cell">@note.Updated.ToString("d")</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-    </div>
-    <div class="col-md-4">
-        <h4 class="text-center">Recent Tags</h4>
-        @if (ViewBag.Tags.Count == 0)
-        {
-            <p class="text-center">No tags were created or used recently.</p>
-        }
-        else
-        {
-            <table class="table table-hover">
-                <tbody>
-                    @foreach (var tagRecord in ViewBag.Tags)
-                    {
-                        <tr>
-                            <td>
-                                <a asp-controller="Notes" asp-action="Index" asp-route-term="tag:@tagRecord.Label">
-                                    @tagRecord.Label
-                                </a>
-                            </td>
-                            <td class="d-none d-lg-table-cell">@tagRecord.LastUsed.ToString("d")</td>
+                            <td class="d-none d-md-table-cell">@note.Updated.ToString("d")</td>
                         </tr>
                     }
                 </tbody>

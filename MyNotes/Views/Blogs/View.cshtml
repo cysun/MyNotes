@@ -1,9 +1,9 @@
-﻿@model Note
+@model Note
 @{
     ViewData["Title"] = $"MyNotes - {Model.Subject}";
 }
 <h2 class="text-center">@Model.Subject</h2>
-<div class="text-center text-muted">@Model.Published?.ToString("d")</div>
+<div class="text-center text-muted mb-3">@Model.Published?.ToString("d")</div>
 <div>
     @Html.Raw(Model.Content)
 </div>

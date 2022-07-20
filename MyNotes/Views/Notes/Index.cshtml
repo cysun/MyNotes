@@ -1,18 +1,16 @@
-﻿@model List<Note>
+@model List<Note>
 @{
     ViewData["Title"] = "MyNotes - Notes";
 }
 
-<form method="get" class="form-inline">
-    <div class="input-group mb-2 mr-2">
-        <input type="text" class="form-control" id="term" name="term" value="@Context.Request.Query["term"]">
-    </div>
-    <button type="submit" class="btn btn-primary mb-2">Search</button>
+<form method="get" class="d-inline-flex mb-3">
+    <input type="text" class="form-control me-2" id="term" name="term" value="@Context.Request.Query["term"]">
+    <button type="submit" class="btn btn-primary">Search</button>
 </form>
 
 @if (Model.Count > 0)
 {
-    <table class="table table-hover mt-2">
+    <table class="table table-hover align-middle">
         <tbody>
             @foreach (var note in Model)
             {
@@ -30,12 +28,12 @@
                         @foreach (var noteTag in note.NoteTags)
                         {
                             <a asp-controller="Notes" asp-action="Index" asp-route-term="tag:@noteTag.Label"
-                               class="badge badge-success">@noteTag.Label</a>
+                   class="badge badge-success">@noteTag.Label</a>
                         }
                     </td>
-                    <td>@note.Updated.ToString("d")</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@note.Id" class="btn btn-primary btn-sm py-0">
+                    <td class="d-none d-lg-table-cell">@note.Updated.ToString("d")</td>
+                    <td class="d-none d-md-table-cell">
+                        <a asp-action="Edit" asp-route-id="@note.Id" class="btn btn-primary btn-sm">
                             <i class="far fa-edit"></i>
                         </a>
                     </td>

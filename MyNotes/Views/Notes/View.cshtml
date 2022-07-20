@@ -1,4 +1,4 @@
-﻿@model Note
+@model Note
 @inject Microsoft.AspNetCore.Authorization.IAuthorizationService authorizationService
 @{
     ViewData["Title"] = $"MyNotes - {Model.Subject}";
@@ -7,7 +7,7 @@
 <nav>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-action="Index">Notes</a></li>
-        <li class="breadcrumb-item active">
+        <li class="breadcrumb-item active me-auto">
             @if (Model.Published != null)
             {
                 if (Model.IsPublic)
@@ -26,8 +26,8 @@
         </li>
         @if ((await authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded)
         {
-            <li class="ml-auto">
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm py-0">
+            <li>
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
                     <i class="far fa-edit"></i>
                 </a>
             </li>
@@ -35,14 +35,14 @@
     </ol>
 </nav>
 
-<div class="px-3">
+<div class="px-2">
     @Html.Raw(Model.Content)
 </div>
 
-<div class="text-right text-muted">
+<div class="text-end text-muted">
     <small>Last Updated: @Model.Updated.ToString("g")</small>
     @if (Model.IsPublic)
     {
-        <small class="ml-3">Views: @Model.ViewCount</small>
+        <small class="ms-3">Views: @Model.ViewCount</small>
     }
 </div>

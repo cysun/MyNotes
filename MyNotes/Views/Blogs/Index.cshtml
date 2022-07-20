@@ -1,4 +1,4 @@
-﻿@model List<Note>
+@model List<Note>
 @{
     ViewData["Title"] = "MyNotes - Blogs";
 }
@@ -6,21 +6,17 @@
 {
     <p>No blog yet.</p>
 }
-<div class="row">
+<div class="row row-cols-1 row-cols-md-2 g-4">
     @foreach (var blog in Model)
     {
-        <div class="col-md-6 mb-4">
+        <div class="col">
             <div class="card h-100">
                 <div class="card-body">
                     <h5>@blog.Subject</h5>
                     @Html.Raw(@blog.Summary)
                     <a asp-action="View" asp-route-id="@blog.Id" class="btn btn-primary">View</a>
                 </div>
-                <div class="card-footer text-right text-muted">
-                    @foreach (var noteTag in blog.NoteTags)
-                    {
-                        <span class="badge badge-success">@noteTag.Label</span>
-                    }
+                <div class="card-footer text-end text-muted">
                     <smaller>@blog.Published?.ToString("d")</smaller>
                 </div>
             </div>
