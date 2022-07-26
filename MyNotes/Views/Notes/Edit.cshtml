@@ -133,6 +133,12 @@
             $("#Content").summernote({
                 height: 600,
                 callbacks: {
+                    // Fixed the BS5 dropdown list bug. See https://github.com/summernote/summernote/issues/4170
+                    onInit: function() {
+                        $("button[data-toggle='dropdown']").each(function(index) {
+                            $(this).removeAttr("data-toggle").attr("data-bs-toggle", "dropdown");
+                        });
+                    },
                     onChange: function() {
                         setStatus(false);
                         delay(function() {
