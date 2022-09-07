@@ -61,7 +61,7 @@
                     </td>
                     <td class="d-none d-lg-table-cell">@file.Size</td>
                 }
-                <td class="d-none d-lg-table-cell">@file.Updated.ToString("g")</td>
+                <td class="d-none d-lg-table-cell">@file.Updated.ToLocalTime().ToString("g")</td>
                 <td>
                     <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id"
                    class="btn btn-primary btn-sm d-none d-md-inline">

@@ -81,7 +81,7 @@
                     </td>
                     <td class="d-none d-lg-table-cell">@file.Size</td>
                 }
-                <td class="d-none d-lg-table-cell">@file.Updated.ToString("g")</td>
+                <td class="d-none d-lg-table-cell">@file.Updated.ToLocalTime().ToString("g")</td>
                 <td>
                     @if (Context.User.Identity.IsAuthenticated)
                     {
@@ -110,11 +110,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css"
       integrity="sha512-jU/7UFiaW5UBGODEopEqnbIAHOI8fO6T99m7Tsmqs2gkdujByJfkCbbfPSN4Wlqlb9TGnsuC0YgUgWkRBK7B9A=="
       crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/dt-1.12.1/datatables.min.css" />
 }
     @section Scripts{
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"
         integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdn.datatables.net/v/bs5/dt-1.12.1/datatables.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.12.1/sorting/datetime-moment.js"></script>
     <script>
         Dropzone.options.uploadForm = {
             uploadMultiple: true,
@@ -124,22 +128,22 @@
             paramName: () => "uploadedFiles",
             parallelUploads: 10,
             timeout: 180000, // default timeout is 30s (30000ms) which is not enough for uploading large files
-            queuecomplete: function() {
+            queuecomplete: function () {
                 location.reload();
             }
         };
-        $(function() {
+        $(function () {
             $("#uploadForm").hide();
             $("#newFolderForm").hide();
-            $("#uploadToggle").click(function() {
+            $("#uploadToggle").click(function () {
                 $("#uploadForm").toggle();
             });
-            $("#newFolderToggle").click(function() {
+            $("#newFolderToggle").click(function () {
                 $("#newFolderForm").toggle();
                 if ($("#newFolderForm").is(":visible"))
                     $("#newFolder").focus();
             });
-            $("#newFolder").keyup(function(event) {
+            $("#newFolder").keyup(function (event) {
                 var keycode = (event.keyCode ? event.keyCode : event.which);
                 var name = $(this).val();
                 if (keycode == "13" && name) {
@@ -149,17 +153,17 @@
                         data: {
                             name,
                             parentId: @Model.Id
-                                                                                },
-                        success: function() {
+                                                                                        },
+                        success: function () {
                             location.reload();
                         }
                     });
                 }
             });
-            $("#clearBtn").click(function() {
+            $("#clearBtn").click(function () {
                 $("#newFolder").val("");
             });
-            $(".file,.folder").click(function() {
+            $(".file,.folder").click(function () {
                 var fileId = $(this).attr("data-file-id");
                 var value = $(this).hasClass("fas") ? "True" : "False";
                 $.ajax({
@@ -167,37 +171,47 @@
                     method: "put",
                     data: { value },
                     context: $(this),
-                    success: function() {
+                    success: function () {
                         this.toggleClass("far");
                         this.toggleClass("fas");
                     }
                 });
             });
-            $("#lock").click(function() {
+            $("#lock").click(function () {
                 var value = $("#isPublic").hasClass("fa-lock") ? "True" : "False";
                 $.ajax({
                     url: `@Context.Request.PathBase/files/${@Model.Id}/IsPublic`,
                     method: "put",
                     data: { value },
-                    success: function() {
+                    success: function () {
                         $("#isPublic").toggleClass("fa-lock");
                         $("#isPublic").toggleClass("fa-lock-open");
                     }
                 });
             });
             $(".delete").hide();
-            $(".delete").click(function() {
+            $(".delete").click(function () {
                 var id = $(this).attr("data-id");
                 var row = $(this).closest("tr");
                 $.ajax({
                     url: `@Context.Request.PathBase/files/ajaxdelete/${id}`,
-                    success: function() {
+                    success: function () {
                         row.remove();
                     }
                 });
             });
-            $("#deleteToggle").click(function() {
+            $("#deleteToggle").click(function () {
                 $(".delete").toggle();
+            });
+            $.fn.dataTable.moment("M/d/YYYY H:m A");
+            $("table").DataTable({
+                paging: false,
+                info: false,
+                searching: false,
+                order: [],
+                columnDefs: [
+                    { targets: [1, 3], orderable: false }
+                ]
             });
         });
     </script>
