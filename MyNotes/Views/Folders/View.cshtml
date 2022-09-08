@@ -116,7 +116,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"
         integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
     <script src="https://cdn.datatables.net/v/bs5/dt-1.12.1/datatables.min.js"></script>
     <script src="https://cdn.datatables.net/plug-ins/1.12.1/sorting/datetime-moment.js"></script>
     <script>
@@ -203,7 +203,8 @@
             $("#deleteToggle").click(function () {
                 $(".delete").toggle();
             });
-            $.fn.dataTable.moment("M/d/YYYY H:m A");
+            $.fn.dataTable.moment("M/d/YYYY h:m A");
+            $.fn.dataTable.moment("M/d/YYYY HH:mm");
             $("table").DataTable({
                 paging: false,
                 info: false,
