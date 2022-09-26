@@ -80,7 +80,8 @@ services.AddAutoMapper(config => config.AddProfile<MapperProfile>());
 
 services.AddScoped<NotesService>();
 
-services.Configure<FilesSettings>(configuration.GetSection("Files"));
+services.Configure<MinioSettings>(configuration.GetSection("Minio"));
+services.AddSingleton<MinioService>();
 services.AddScoped<FilesService>();
 
 services.Configure<ForwardedHeadersOptions>(options =>

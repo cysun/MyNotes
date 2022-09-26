@@ -12,10 +12,14 @@
     "ClientId": "cysun-mynotes",
     "ClientSecret": "abcd"
   },
-  "Files": {
-    "Directory": "D:/Temp/MyNotes/files",
-    "AttachmentTypes": [ ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".zip" ],
-    "TextTypes": [ ".java", ".sql", ".jsp" ]
+  "Minio": {
+    "Endpoint": "sfo3.digitaloceanspaces.com",
+    "AccessKey": "abcd",
+    "SecretKey": "1234",
+    "Bucket": "test",
+    "PathPrefix": "",
+    "AttachmentTypes": [ ".zip" ],
+    "TextTypes": [ ".java", ".sql", ".jsp", ".txt", ".php" ]
   },
   "Serilog": {
     "Using": [

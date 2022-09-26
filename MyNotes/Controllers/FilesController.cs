@@ -87,19 +87,19 @@ namespace MyNotes.Controllers
                 return RedirectToAction("Index");
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             var file = _filesService.GetFile(id);
             if (file == null) return NotFound();
 
             if (file.IsFolder)
             {
-                var filesDeleted = _filesService.DeleteFolder(id);
+                var filesDeleted = await _filesService.DeleteFolderAsync(id);
                 _logger.LogInformation("{n} files deleted.", filesDeleted);
             }
             else
             {
-                var versionsDeleted = _filesService.DeleteFile(id);
+                var versionsDeleted = await _filesService.DeleteFileAsync(id);
                 _logger.LogInformation("{n} versions of {file} deleted.", versionsDeleted, id);
             }
 
@@ -109,19 +109,19 @@ namespace MyNotes.Controllers
                 return RedirectToAction("Index");
         }
 
-        public IActionResult AjaxDelete(int id)
+        public async Task<IActionResult> AjaxDeleteAsync(int id)
         {
             var file = _filesService.GetFile(id);
             if (file == null) return NotFound();
 
             if (file.IsFolder)
             {
-                var filesDeleted = _filesService.DeleteFolder(id);
+                var filesDeleted = await _filesService.DeleteFolderAsync(id);
                 _logger.LogInformation("{n} files deleted.", filesDeleted);
             }
             else
             {
-                var versionsDeleted = _filesService.DeleteFile(id);
+                var versionsDeleted = await _filesService.DeleteFileAsync(id);
                 _logger.LogInformation("{n} versions of {file} deleted.", versionsDeleted, id);
             }
 
@@ -129,10 +129,10 @@ namespace MyNotes.Controllers
         }
 
         [HttpPost]
-        public IActionResult Upload(int? parentId, IFormFile[] uploadedFiles)
+        public async Task<IActionResult> UploadAsync(int? parentId, IFormFile[] uploadedFiles)
         {
             foreach (var uploadedFile in uploadedFiles)
-                _filesService.UploadFile(parentId, uploadedFile);
+                await _filesService.UploadFileAsync(parentId, uploadedFile);
 
             if (parentId != null)
             {
@@ -166,12 +166,7 @@ namespace MyNotes.Controllers
                 _filesService.SaveChanges();
             }
 
-            var diskFile = _filesService.GetDiskFile(file.Id, file.Version);
-
-
-            inline = inline && !_filesService.IsAttachmentType(file.Name);
-            return !inline ? PhysicalFile(diskFile, file.ContentType, file.Name) :
-                PhysicalFile(diskFile, _filesService.IsTextType(file.Name) ? "text/plain" : file.ContentType);
+            return Redirect(await _filesService.GetDownloadUrlAsync(file, inline));
         }
 
         [HttpPut("Files/{id}/{field}")]

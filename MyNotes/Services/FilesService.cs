@@ -1,51 +1,22 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace MyNotes.Services;
-
-public class FilesSettings
-{
-    public string Directory { get; set; }
-
-    // Attachment Types are files (e.g. doc) whose Content-Disposition header should be
-    // set to attachment even for View File operation. These files cannot be displayed
-    // directly in browser so browsers will try to save them. Providing a file name to
-    // PhysicalFile() will ensure that the file is saved with the right name instead of
-    // having id as its name.
-    public HashSet<string> AttachmentTypes { get; set; }
-
-    // Text Types are files (e.g. java) that should be displayed directly in browser.
-    // Browsers may not display them because of their content types, so we'll overwrite
-    // their content types with "text/plain".
-    public HashSet<string> TextTypes { get; set; }
-}
 
 public class FilesService
 {
     private readonly AppDbContext _db;
+    private readonly MinioService _minioService;
 
     private readonly IMapper _mapper;
     private readonly ILogger<FilesService> _logger;
 
-    private readonly FilesSettings _settings;
-
-    public FilesService(AppDbContext db, IMapper mapper, ILogger<FilesService> logger, IOptions<FilesSettings> settings)
+    public FilesService(AppDbContext db, MinioService minioService, IMapper mapper, ILogger<FilesService> logger)
     {
         _db = db;
+        _minioService = minioService;
         _mapper = mapper;
         _logger = logger;
-        _settings = settings.Value;
-    }
-
-    public bool IsAttachmentType(string fileName)
-    {
-        return _settings.AttachmentTypes.Contains(Path.GetExtension(fileName).ToLower());
-    }
-
-    public bool IsTextType(string fileName)
-    {
-        return _settings.TextTypes.Contains(Path.GetExtension(fileName).ToLower());
     }
 
     public List<Models.File> GetRecentFiles(bool publicOnly = false)
@@ -111,7 +82,7 @@ public class FilesService
         return _db.Files.Where(f => f.ParentId == parentId && f.Name == name).FirstOrDefault();
     }
 
-    public Models.File UploadFile(int? parentId, IFormFile uploadedFile)
+    public async Task<Models.File> UploadFileAsync(int? parentId, IFormFile uploadedFile)
     {
         string name = Path.GetFileName(uploadedFile.FileName);
         var file = GetFile(parentId, name);
@@ -144,20 +115,14 @@ public class FilesService
         _db.SaveChanges();
         _logger.LogInformation($"File {name} added to database");
 
-        string diskFile = Path.Combine(_settings.Directory, $"{file.Id}-{file.Version}");
-        using (var fileStream = new FileStream(diskFile, FileMode.Create))
-        {
-            uploadedFile.CopyTo(fileStream);
-        }
-        _logger.LogInformation($"File {name} saved to disk");
+        await _minioService.UploadFileAsync(file, uploadedFile);
+        _logger.LogInformation($"File {name} saved to object store");
 
         return file;
     }
 
-    public string GetDiskFile(int fileId, int version)
-    {
-        return Path.Combine(_settings.Directory, $"{fileId}-{version}");
-    }
+    public async Task<string> GetDownloadUrlAsync(Models.File file, bool inline = false) =>
+        await _minioService.GetDownloadUrlAsync(file, inline);
 
     public void AddFolder(Models.File folder) => _db.Files.Add(folder);
 
@@ -171,14 +136,14 @@ public class FilesService
             .ToList();
     }
 
-    public int DeleteFile(int id)
+    public async Task<int> DeleteFileAsync(int id)
     {
         var file = _db.Files.Find(id);
         if (file != null)
         {
             for (int i = 1; i < file.Version; ++i)
             {
-                File.Delete(GetDiskFile(id, i));
+                await _minioService.DeleteFileAsync(id, i);
                 _db.FileHistories.Remove(new Models.FileHistory
                 {
                     FileId = id,
@@ -186,14 +151,14 @@ public class FilesService
                 });
             }
         }
-        File.Delete(GetDiskFile(id, file.Version));
+        await _minioService.DeleteFileAsync(id, file.Version);
         _db.Files.Remove(file);
         _db.SaveChanges();
 
         return file.Version;
     }
 
-    public int DeleteFolder(int id)
+    public async Task<int> DeleteFolderAsync(int id)
     {
         var totalRemoved = 0;
         var folder = _db.Files.Find(id);
@@ -203,10 +168,10 @@ public class FilesService
             foreach (var child in children)
             {
                 if (child.IsFolder)
-                    totalRemoved += DeleteFolder(child.Id);
+                    totalRemoved += await DeleteFolderAsync(child.Id);
                 else
                 {
-                    DeleteFile(child.Id);
+                    await DeleteFileAsync(child.Id);
                     totalRemoved++;
                 }
             }
