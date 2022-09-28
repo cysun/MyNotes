@@ -40,7 +40,7 @@
 </div>
 
 <div class="text-end text-muted">
-    <small>Last Updated: @Model.Updated.ToString("g")</small>
+    <small>Last Updated: @Model.Updated.ToLocalTime().ToString("g")</small>
     @if (Model.IsPublic)
     {
         <small class="ms-3">Views: @Model.ViewCount</small>

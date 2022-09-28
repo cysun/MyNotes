@@ -76,7 +76,7 @@
                         <a asp-controller="Files" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
                         @if (file.Version > 1)
                         {
-                            <span class="badge badge-info ms-2">v@(file.Version)</span>
+                            <span class="badge text-bg-secondary ms-2">v@(file.Version)</span>
                         }
                     </td>
                     <td class="d-none d-lg-table-cell">@file.Size</td>
