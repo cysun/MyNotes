@@ -30,10 +30,11 @@ CREATE TABLE "Notes" (
     "Created" timestamp with time zone NOT NULL,
     "Updated" timestamp with time zone NOT NULL,
     "Published" timestamp with time zone NULL,
+    "IsPinned" boolean NOT NULL,
     "ViewCount" integer NOT NULL,
     "Summary" text NULL,
     "IsBlog" boolean NOT NULL DEFAULT FALSE,
-    "Deleted" boolean NOT NULL,
+    "IsDeleted" boolean NOT NULL,
     CONSTRAINT "PK_Notes" PRIMARY KEY ("Id")
 );
 
@@ -52,7 +53,7 @@ CREATE TABLE "FileHistories" (
 CREATE INDEX "IX_Files_ParentId" ON "Files" ("ParentId");
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20220720191150_InitialSchema', '6.0.7');
+VALUES ('20221008233114_InitialSchema', '6.0.9');
 
 COMMIT;
 

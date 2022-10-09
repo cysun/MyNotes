@@ -20,6 +20,13 @@ public class NotesService
             .ToList();
     }
 
+    public List<Note> GetPinnedNotes(bool publicOnly = false)
+    {
+        return _db.Notes.Where(n => n.IsPinned && (n.Published < DateTime.UtcNow || !publicOnly))
+            .OrderBy(n => n.Subject)
+            .ToList();
+    }
+
     public Note GetNote(int id)
     {
         return _db.Notes.Where(n => n.Id == id).SingleOrDefault();
@@ -32,7 +39,7 @@ public class NotesService
         if (note.Content == null || note.Content.Length < 200)
             _db.Notes.Remove(note);
         else
-            note.Deleted = true;
+            note.IsDeleted = true;
     }
 
     public List<Note> SearchNotes(string term, bool publicOnly = false)

@@ -114,6 +114,9 @@ namespace MyNotes.Controllers
                     else
                         note.Published = DateTime.Parse(value).ToUniversalTime();
                     break;
+                case "pinned":
+                    note.IsPinned = !note.IsPinned;
+                    break;
                 default:
                     _logger.LogWarning("Unrecognized field: {field}", field);
                     break;
@@ -141,6 +144,7 @@ namespace MyNotes.Models
         public string Content { get; set; }
 
         public DateTime? Published { get; set; }
+        public bool IsPinned { get; set; }
 
         public string Summary { get; set; }
         public bool IsBlog { get; set; }

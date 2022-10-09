@@ -18,10 +18,12 @@ public class Note
     public DateTime? Published { get; set; }
     public bool IsPublic => Published != null && Published < DateTime.UtcNow;
 
+    public bool IsPinned { get; set; }
+
     public int ViewCount { get; set; }
 
     public string Summary { get; set; }
     public bool IsBlog { get; set; }
 
-    public bool Deleted { get; set; }
+    public bool IsDeleted { get; set; }
 }

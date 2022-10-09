@@ -13,7 +13,7 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Note>().HasQueryFilter(n => !n.Deleted);
+        modelBuilder.Entity<Note>().HasQueryFilter(n => !n.IsDeleted);
         modelBuilder.Entity<Note>().Property(n => n.IsBlog).HasDefaultValue(false);
         modelBuilder.Entity<FileHistory>().HasKey(h => new { h.FileId, h.Version });
     }

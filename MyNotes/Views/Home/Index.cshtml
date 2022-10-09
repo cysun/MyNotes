@@ -1,32 +1,53 @@
 @{
     ViewData["Title"] = "MyNotes";
 }
-<div class="row">
-    <div class="col-lg-8">
-        <h4 class="text-center">Recent Notes</h4>
-        @if (ViewBag.Notes.Count == 0)
-        {
-            <p class="text-center">No notes were created or updated recently.</p>
-        }
-        else
-        {
-            <table class="table table-hover">
-                <tbody>
-                    @foreach (var note in ViewBag.Notes)
-                    {
-                        <tr>
-                            <td>
+<div class="row row-cols-1 row-cols-lg-2 g-4">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">Pinned Notes</div>
+            <div class="card-body">
+                @if (ViewBag.PinnedNotes.Count > 0)
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var note in ViewBag.PinnedNotes)
+                        {
+                            <li class="list-group-item">
                                 @if (note.IsPublic)
                                 {
                                     <i class="fab fa-creative-commons-share text-success"></i>
                                 }
-                                <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id" class="mr-3">@note.Subject</a>
-                            </td>
-                            <td class="d-none d-md-table-cell">@note.Updated.ToString("d")</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
+                                <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">Recent Notes</div>
+            <div class="card-body">
+                @if (ViewBag.RecentNotes.Count > 0)
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var note in ViewBag.RecentNotes)
+                        {
+                            <li class="list-group-item">
+                                @if (note.IsPublic)
+                                {
+                                    <i class="fab fa-creative-commons-share text-success"></i>
+                                }
+                                <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>There was no note created or updated in the last three weeks.</p>
+                }
+            </div>
+        </div>
     </div>
 </div>
