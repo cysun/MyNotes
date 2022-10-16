@@ -42,7 +42,7 @@
     </form>
 }
 
-<table class="table table-hover align-middle">
+<table class="table table-hover table-striped align-middle">
     <thead>
         <tr>
             <th>Name</th>
@@ -79,10 +79,10 @@
                             <span class="badge text-bg-secondary ms-2">v@(file.Version)</span>
                         }
                     </td>
-                    <td class="d-none d-lg-table-cell">@file.Size</td>
+                    <td class="d-none d-lg-table-cell">@file.GetFormattedSize()</td>
                 }
-                <td class="d-none d-lg-table-cell">@file.Updated.ToLocalTime().ToString("g")</td>
-                <td>
+                <td class="d-none d-lg-table-cell">@file.Updated.ToLocalTime().ToString("d")</td>
+                <td class="text-nowrap">
                     @if (Context.User.Identity.IsAuthenticated)
                     {
                         <button data-id="@file.Id" class="delete btn btn-danger btn-sm me-2">

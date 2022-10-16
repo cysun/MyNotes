@@ -31,6 +31,18 @@ public class File
 
     public bool IsFavorite { get; set; }
     public bool IsPublic { get; set; }
+
+    public string GetFormattedSize()
+    {
+        if (IsFolder) return "";
+
+        if (Size < 1024)
+            return $"{Size} B";
+        else if (Size < 1048576)
+            return (Size / 1024.0).ToString("0.#") + " KB";
+        else
+            return (Size / 1024.0 / 1024.0).ToString("0.#") + " MB";
+    }
 }
 
 public class FileHistory

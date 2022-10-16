@@ -26,7 +26,7 @@
 <form id="uploadForm" asp-controller="Files" asp-action="Upload" class="dropzone"
       method="post" enctype="multipart/form-data"></form>
 
-<table class="table table-hover align-middle">
+<table class="table table-hover table-striped align-middle">
     <thead>
         <tr>
             <th>Name</th>
@@ -59,10 +59,10 @@
                             <span class="badge badge-info ms-2">v@(file.Version)</span>
                         }
                     </td>
-                    <td class="d-none d-lg-table-cell">@file.Size</td>
+                    <td class="d-none d-lg-table-cell">@file.GetFormattedSize()</td>
                 }
-                <td class="d-none d-lg-table-cell">@file.Updated.ToLocalTime().ToString("g")</td>
-                <td>
+                <td class="d-none d-lg-table-cell">@file.Updated.ToLocalTime().ToString("d")</td>
+                <td class="text-nowrap">
                     <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id"
                    class="btn btn-primary btn-sm d-none d-md-inline">
                         <i class="far fa-edit"></i>
