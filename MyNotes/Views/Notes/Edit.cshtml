@@ -46,17 +46,9 @@
     </div>
 </form>
 
-@section StyleSheets{
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs5.min.css"
-      integrity="sha512-ngQ4IGzHQ3s/Hh8kMyG4FC74wzitukRMIcTOoKT3EyzFZCILOPF0twiXOQn75eDINUfKBYmzYn2AA8DkAk8veQ=="
-      crossorigin="anonymous" referrerpolicy="no-referrer" />
-}
-    @section Scripts{
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs5.min.js"
-        integrity="sha512-6F1RVfnxCprKJmfulcxxym1Dar5FsT/V2jiEUvABiaEiFWoQ8yHvqRM/Slf0qJKiwin6IDQucjXuolCfCKnaJQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://unpkg.com/prettier@2.7.1/standalone.js"></script>
-    <script src="https://unpkg.com/prettier@2.7.1/parser-html.js"></script>
+@section Scripts{
+    <script src="https://cdn.tiny.cloud/1/4jeuqf3mhgytuk82mowljcxt0pbcbem4ivn5xorph63kjcfg/tinymce/6/tinymce.min.js"
+            referrerpolicy="origin"></script>
     <script>
         function setStatus(saved) {
             var status = $("#status").hasClass("btn-success");
@@ -82,43 +74,28 @@
                 timer = setTimeout(callback, ms);
             };
         })();
-        // Code from https://github.com/summernote/summernote/issues/3409
-        var formatButton = function (context) {
-            var ui = $.summernote.ui;
-            var button = ui.button({
-                contents: "<i class='fas fa-hand-sparkles'></i>",
-                tooltip: "Format HTML",
-                click: function () {
-                    if (prettier && prettierPlugins) {
-                        let content = prettier.format($("#Content").summernote("code"), {
-                            parser: "html",
-                            plugins: prettierPlugins
-                        });
-                        $("#Content").summernote("code", content);
-                    }
-                }
-            });
-            return button.render();
-        };
-        var saveButton = function (context) {
-            var ui = $.summernote.ui;
-            var button = ui.button({
-                contents: "<i class='fas fa-save'></i>",
-                tooltip: "Save",
-                click: function () {
-                    $.ajax({
-                        url: "@Context.Request.PathBase/notes/@Model.Id/content",
-                        method: "put",
-                        data: { value: $("#Content").val() },
-                        success: function () {
-                            setStatus(true);
-                        }
+        $(function () {
+            tinymce.init({
+                selector: "textarea#Content",
+                plugins: "anchor autolink code image link lists searchreplace table visualblocks wordcount fullscreen",
+                menubar: false,
+                toolbar: "styles fontfamily forecolor backcolor numlist bullist indent outdent hr link image media table code fullscreen",
+                setup: (editor) => {
+                    editor.on("change input paste undo redo", e => {
+                        setStatus(false);
+                        delay(function () {
+                            $.ajax({
+                                url: "@Context.Request.PathBase/notes/@Model.Id/content",
+                                method: "put",
+                                data: { value: editor.getContent() },
+                                success: function () {
+                                    setStatus(true);
+                                }
+                            });
+                        }, 1000);
                     });
                 }
             });
-            return button.render();
-        };
-        $(function () {
             $("#Subject").keyup(function () {
                 setStatus(false);
                 delay(function () {
@@ -131,50 +108,6 @@
                         }
                     });
                 }, 1000);
-            });
-            $("#Content").summernote({
-                height: 600,
-                callbacks: {
-                    // Fixed the BS5 dropdown list bug. See https://github.com/summernote/summernote/issues/4170
-                    onInit: function () {
-                        $("button[data-toggle='dropdown']").each(function (index) {
-                            $(this).removeAttr("data-toggle").attr("data-bs-toggle", "dropdown");
-                        });
-                    },
-                    onChange: function () {
-                        setStatus(false);
-                        delay(function () {
-                            $.ajax({
-                                url: "@Context.Request.PathBase/notes/@Model.Id/content",
-                                method: "put",
-                                data: { value: $("#Content").val() },
-                                success: function () {
-                                    setStatus(true);
-                                }
-                            });
-                        }, 1000);
-                    }
-                },
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
-                    ['fontname', ['fontname']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['table', ['table']],
-                    ['insert', ['link', 'picture', 'video', 'hr']],
-                    ['view', ['format', 'codeview', 'fullscreen']],
-                    ['save', ['save']],
-                ],
-                styleTags: ["p",
-                    { tag: "div", title: "Normal (div)", value: "div" },
-                    { tag: "pre", title: "Code", value: "pre" },
-                    { tag: "blockquote", title: "Blockquote", className: "blockquote", value: "blockquote" },
-                    "h1", "h2", "h3", "h4"],
-                buttons: {
-                    format: formatButton,
-                    save: saveButton
-                }
             });
             $("#delete").click(function () {
                 if (confirm("Are you sure you want to delete this note?"))
