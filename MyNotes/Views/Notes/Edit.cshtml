@@ -79,6 +79,8 @@
                 selector: "textarea#Content",
                 plugins: "anchor autolink code image link lists searchreplace table visualblocks wordcount fullscreen",
                 menubar: false,
+                convert_urls: false,
+                browser_spellcheck: true,
                 toolbar: "styles fontfamily forecolor backcolor numlist bullist indent outdent hr link image media table code fullscreen",
                 setup: (editor) => {
                     editor.on("change input paste undo redo", e => {
@@ -94,7 +96,8 @@
                             });
                         }, 1000);
                     });
-                }
+                },
+                height: 700
             });
             $("#Subject").keyup(function () {
                 setStatus(false);
