@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using Minio;
+using Minio.DataModel.Args;
 using Minio.Exceptions;
 
 namespace MyNotes.Services;
@@ -26,7 +27,7 @@ public class MinioSettings
 
 public class MinioService
 {
-    private MinioClient _client;
+    private IMinioClient _client;
     private MinioSettings _settings;
 
     private ILogger<MinioService> _logger;
