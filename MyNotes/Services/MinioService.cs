@@ -54,7 +54,7 @@ public class MinioService
         return _settings.TextTypes.Contains(Path.GetExtension(fileName).ToLower());
     }
 
-    public string GetObjectName(Models.File file) => GetObjectName(file.Id, file.Version);
+    public string GetObjectName(Models.File file, int? version = null) => GetObjectName(file.Id, version ?? file.Version);
 
     public string GetObjectName(int fileId, int version) => $"{_settings.PathPrefix}{fileId}-{version}";
 
@@ -79,7 +79,7 @@ public class MinioService
         }
     }
 
-    public async Task<string> GetDownloadUrlAsync(Models.File file, bool inline = false)
+    public async Task<string> GetDownloadUrlAsync(Models.File file, int? version = null, bool inline = false)
     {
         inline = inline && !IsAttachmentType(file.Name);
         var reqParams = new Dictionary<string, string> {
@@ -89,7 +89,8 @@ public class MinioService
 
         var args = new PresignedGetObjectArgs()
             .WithBucket(_settings.Bucket)
-            .WithObject($"{_settings.PathPrefix}{file.Id}-{file.Version}")
+            //.WithObject($"{_settings.PathPrefix}{file.Id}-{file.Version}")
+            .WithObject(GetObjectName(file, version))
             .WithExpiry(10) // Download link valid for 10 seconds
             .WithHeaders(reqParams);
 

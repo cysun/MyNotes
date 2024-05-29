@@ -121,8 +121,8 @@ public class FilesService
         return file;
     }
 
-    public async Task<string> GetDownloadUrlAsync(Models.File file, bool inline = false) =>
-        await _minioService.GetDownloadUrlAsync(file, inline);
+    public async Task<string> GetDownloadUrlAsync(Models.File file, int? version = null, bool inline = false) =>
+        await _minioService.GetDownloadUrlAsync(file, version, inline);
 
     public void AddFolder(Models.File folder) => _db.Files.Add(folder);
 

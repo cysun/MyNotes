@@ -145,13 +145,13 @@ namespace MyNotes.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> ViewAsync(int id)
+        public async Task<IActionResult> ViewAsync(int id, int? version)
         {
-            return await DownloadAsync(id, true);
+            return await DownloadAsync(id, version, true);
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> DownloadAsync(int id, bool inline = false)
+        public async Task<IActionResult> DownloadAsync(int id, int? version = null, bool inline = false)
         {
             var file = _filesService.GetFile(id);
             if (file == null) return NotFound();
@@ -166,7 +166,7 @@ namespace MyNotes.Controllers
                 _filesService.SaveChanges();
             }
 
-            return Redirect(await _filesService.GetDownloadUrlAsync(file, inline));
+            return Redirect(await _filesService.GetDownloadUrlAsync(file, version, inline));
         }
 
         [HttpPut("Files/{id}/{field}")]
