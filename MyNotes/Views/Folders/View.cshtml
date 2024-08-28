@@ -1,7 +1,6 @@
 @model File
 @{
     ViewData["Title"] = $"MyNotes - /{Model.Name}";
-    var lockIcon = Model.IsPublic ? "fa-lock-open" : "fa-lock";
 }
 
 <nav>
@@ -14,30 +13,33 @@
                 <li class="breadcrumb-item"><a asp-action="View" asp-route-id="@ancestor.Id">@ancestor.Name</a></li>
             }
         }
-        <li class="breadcrumb-item active">@Model.Name</li>
+        <li class="breadcrumb-item active">
+            <span>@Model.Name</span>
+            @if (Model.IsPublic)
+            {
+                <span class="badge text-success ms-2">Public</span>
+            }
+        </li>
     </ol>
 </nav>
 
 @if (Context.User.Identity.IsAuthenticated)
 {
     <div class="btn-toolbar mb-3">
-        <button id="lock" type="button" class="btn btn-info me-3">
-            <i id="isPublic" class="fas @lockIcon"></i>
+        <button id="uploadToggle" type="button" class="btn btn-outline-primary me-3">
+            <i class="bi bi-upload"></i>
         </button>
-        <button id="uploadToggle" type="button" class="btn btn-primary me-3">
-            <i class="fas fa-file-upload"></i>
-        </button>
-        <button id="newFolderToggle" type="button" class="btn btn-primary">
-            <i class="fas fa-folder-plus"></i>
+        <button id="newFolderToggle" type="button" class="btn btn-outline-primary">
+            <i class="bi bi-folder-plus"></i>
         </button>
         <div id="newFolderForm" class="input-group ms-2">
             <input id="newFolder" type="text" class="form-control" style="width: 20em;">
-            <div class="input-group-text" id="clearBtn"><i class="fas fa-times"></i></div>
+            <div class="input-group-text" id="clearBtn"><i class="bi bi-x-lg"></i></div>
         </div>
     </div>
 
     <form id="uploadForm" asp-controller="Files" asp-action="Upload" class="dropzone"
-      method="post" enctype="multipart/form-data">
+          method="post" enctype="multipart/form-data">
         <input type="hidden" name="parentId" value="@Model.Id" />
     </form>
 }
@@ -50,7 +52,7 @@
             <th class="d-none d-lg-table-cell">Updated</th>
             <th>
                 <button id="deleteToggle" class="btn btn-outline-secondary btn-sm d-none d-md-inline shadow-none">
-                    <i class="fas fa-trash"></i>
+                    <i class="bi bi-trash-fill"></i>
                 </button>
             </th>
         </tr>
@@ -58,13 +60,17 @@
     <tbody>
         @foreach (var file in Model.Children)
         {
-            var icon = file.IsPublic ? "far" : "fas";
+            string icon;
+            if (file.IsFolder)
+                icon = file.IsPublic ? "bi-folder" : "bi-folder-fill";
+            else
+                icon = file.IsPublic ? "bi-file-earmark" : "bi-file-earmark-fill";
             <tr>
                 @if (file.IsFolder)
                 {
 
                     <td>
-                        <i class="folder @icon fa-folder-open me-2" style="color: orange;" data-file-id="@file.Id"></i>
+                        <i class="folder @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
                         <a asp-action="View" asp-route-id="@file.Id">@file.Name</a>
                     </td>
                     <td class="d-none d-lg-table-cell"></td>
@@ -72,11 +78,11 @@
                 else
                 {
                     <td>
-                        <i class="file @icon fa-file me-2" style="color: orange;" data-file-id="@file.Id"></i>
+                        <i class="file @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
                         <a asp-controller="Files" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
                         @if (file.Version > 1)
                         {
-                            <span class="badge text-bg-secondary ms-2">v@(file.Version)</span>
+                            <span class="badge text-light">v@(file.Version)</span>
                         }
                     </td>
                     <td class="d-none d-lg-table-cell">@file.GetFormattedSize()</td>
@@ -85,19 +91,19 @@
                 <td class="text-nowrap">
                     @if (Context.User.Identity.IsAuthenticated)
                     {
-                        <button data-id="@file.Id" class="delete btn btn-danger btn-sm me-2">
-                            <i class="fas fa-trash"></i>
+                        <button data-id="@file.Id" class="delete btn btn-outline-danger btn-sm me-2">
+                            <i class="bi bi-trash-fill"></i>
                         </button>
                         <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id"
-                   class="btn btn-primary btn-sm me-2 d-none d-md-inline">
-                            <i class="far fa-edit"></i>
+                           class="btn btn-outline-primary btn-sm me-2 d-none d-md-inline">
+                            <i class="bi bi-pencil-fill"></i>
                         </a>
                     }
                     @if (!file.IsFolder)
                     {
                         <a asp-controller="Files" asp-action="Download" asp-route-id="@file.Id"
-                   class="btn btn-primary btn-sm">
-                            <i class="fas fa-download"></i>
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-download"></i>
                         </a>
                     }
                 </td>
@@ -106,16 +112,16 @@
     </tbody>
 </table>
 
-@section StyleSheets{
+@section StyleSheets {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css"
-      integrity="sha512-jU/7UFiaW5UBGODEopEqnbIAHOI8fO6T99m7Tsmqs2gkdujByJfkCbbfPSN4Wlqlb9TGnsuC0YgUgWkRBK7B9A=="
-      crossorigin="anonymous" referrerpolicy="no-referrer" />
+          integrity="sha512-jU/7UFiaW5UBGODEopEqnbIAHOI8fO6T99m7Tsmqs2gkdujByJfkCbbfPSN4Wlqlb9TGnsuC0YgUgWkRBK7B9A=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://cdn.datatables.net/v/bs5/dt-2.0.8/datatables.min.css" rel="stylesheet">
 }
-    @section Scripts{
+@section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"
-        integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/3.4.4/luxon.min.js"></script>
     <script src="https://cdn.datatables.net/v/bs5/dt-2.0.8/datatables.min.js"></script>
     <script>
@@ -152,7 +158,7 @@
                         data: {
                             name,
                             parentId: @Model.Id
-                                                                                        },
+                                                                                                                                        },
                         success: function () {
                             location.reload();
                         }
@@ -162,29 +168,28 @@
             $("#clearBtn").click(function () {
                 $("#newFolder").val("");
             });
+            var fileIcons = ["bi-folder-fill", "bi-folder", "bi-file-earmark-fill", "bi-file-earmark"];
+            var toggleIcons = function (element, icon1, icon2) {
+                if (element.hasClass(icon1)) {
+                    element.removeClass(icon1);
+                    element.addClass(icon2);
+                }
+                else if (element.hasClass(icon2)) {
+                    element.removeClass(icon2);
+                    element.addClass(icon1);
+                }
+            }
             $(".file,.folder").click(function () {
                 var fileId = $(this).attr("data-file-id");
-                var value = $(this).hasClass("fas") ? "True" : "False";
+                var value = $(this).hasClass(fileIcons[0]) || $(this).hasClass(fileIcons[2]) ? "True" : "False";
                 $.ajax({
                     url: `@Context.Request.PathBase/files/${fileId}/IsPublic`,
                     method: "put",
                     data: { value },
                     context: $(this),
                     success: function () {
-                        this.toggleClass("far");
-                        this.toggleClass("fas");
-                    }
-                });
-            });
-            $("#lock").click(function () {
-                var value = $("#isPublic").hasClass("fa-lock") ? "True" : "False";
-                $.ajax({
-                    url: `@Context.Request.PathBase/files/${@Model.Id}/IsPublic`,
-                    method: "put",
-                    data: { value },
-                    success: function () {
-                        $("#isPublic").toggleClass("fa-lock");
-                        $("#isPublic").toggleClass("fa-lock-open");
+                        toggleIcons(this, fileIcons[0], fileIcons[1]);
+                        toggleIcons(this, fileIcons[2], fileIcons[3]);
                     }
                 });
             });

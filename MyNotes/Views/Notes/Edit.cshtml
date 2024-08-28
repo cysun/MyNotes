@@ -19,22 +19,22 @@
         <li class="breadcrumb-item"><a asp-action="View" asp-route-id="@Model.Id">@Model.Subject</a></li>
         <li class="breadcrumb-item active me-auto">Edit</li>
         <li>
-            <button id="delete" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+            <button id="delete" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash-fill"></i></button>
         </li>
     </ol>
 </nav>
 
 <div class="btn-toolbar mb-3">
     <button id="status" type="button" class="btn btn-success me-2">
-        <i class="fas fa-check-circle"></i>
+        <i class="bi bi-check-circle-fill"></i>
     </button>
     <div class="input-group me-2">
-        <button id="publish" class="btn @publishBtn shadow-none"><i class="fab fa-creative-commons-share"></i></button>
+        <button id="publish" class="btn @publishBtn shadow-none"><i class="bi bi-cc-circle"></i></button>
         <input asp-for="Published" class="form-control" />
-        <span id="unpublish" class="input-group-text"><i class="fas fa-times"></i></span>
+        <span id="unpublish" class="input-group-text"><i class="bi bi-x-lg"></i></span>
     </div>
-    <a asp-controller="Blogs" asp-action="Edit" asp-route-id="@Model.Id" class="btn @blogBtn me-2"><i class="fas fa-blog"></i></a>
-    <button id="pin" class="btn @pinBtn shadow-none"><i class="fas fa-thumbtack"></i></button>
+    <a asp-controller="Blogs" asp-action="Edit" asp-route-id="@Model.Id" class="btn @blogBtn me-2"><i class="bi bi-broadcast-pin"></i></a>
+    <button id="pin" class="btn @pinBtn shadow-none"><i class="bi bi-pin-fill"></i></button>
 </div>
 
 <form>
@@ -58,13 +58,13 @@
                     .removeClass("btn-warning")
                     .addClass('btn-success')
                     .empty()
-                    .append("<i class='fas fa-check-circle'></i>");
+                    .append("<i class='bi bi-check-circle-fill'></i>");
             else
                 $("#status")
                     .removeClass("btn-success")
                     .addClass('btn-warning')
                     .empty()
-                    .append("<i class='fas fa-exclamation-circle'></i>");
+                    .append("<i class='bi bi-exclamation-circle-fill'></i>");
         }
         // Code from https://stackoverflow.com/questions/14042193/how-to-trigger-an-event-in-input-text-after-i-stop-typing-writing
         var delay = (function () {

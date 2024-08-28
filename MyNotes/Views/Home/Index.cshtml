@@ -14,7 +14,7 @@
                             <li class="list-group-item">
                                 @if (note.IsPublic)
                                 {
-                                    <i class="fab fa-creative-commons-share text-success"></i>
+                                    <i class="bi bi-cc-circle text-success"></i>
                                 }
                                 <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a>
                             </li>
@@ -36,7 +36,7 @@
                             <li class="list-group-item">
                                 @if (note.IsPublic)
                                 {
-                                    <i class="fab fa-creative-commons-share text-success"></i>
+                                    <i class="bi bi-cc-circle text-success"></i>
                                 }
                                 <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a>
                             </li>

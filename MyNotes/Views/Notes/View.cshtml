@@ -27,8 +27,8 @@
         @if ((await authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded)
         {
             <li>
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
-                    <i class="far fa-edit"></i>
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-pencil-fill"></i>
                 </a>
             </li>
         }

@@ -6,19 +6,19 @@
 <div class="btn-toolbar mb-3">
     <form method="get" class="d-inline-flex">
         <input type="text" class="form-control me-2" id="term" name="term" value="@Context.Request.Query["term"]">
-        <button type="submit" class="btn btn-primary">Search</button>
+        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search"></i></button>
     </form>
     @if (string.IsNullOrWhiteSpace(Context.Request.Query["term"]))
     {
-        <button id="uploadToggle" type="button" class="btn btn-primary ms-3">
-            <i class="fas fa-file-upload"></i>
+        <button id="uploadToggle" type="button" class="btn btn-outline-primary ms-3">
+            <i class="bi bi-upload"></i>
         </button>
-        <button id="newFolderToggle" type="button" class="btn btn-primary ms-3">
-            <i class="fas fa-folder-plus"></i>
+        <button id="newFolderToggle" type="button" class="btn btn-outline-primary ms-3">
+            <i class="bi bi-folder-plus"></i>
         </button>
         <div id="newFolderForm" class="input-group ms-2">
             <input id="newFolder" type="text" class="form-control" style="width: 20em;">
-            <div class="input-group-text" id="clearBtn"><i class="fas fa-times"></i></div>
+            <div class="input-group-text" id="clearBtn"><i class="bi bi-x-lg"></i></div>
         </div>
     }
 </div>
@@ -38,13 +38,17 @@
     <tbody>
         @foreach (var file in Model)
         {
-            var icon = file.IsPublic ? "far" : "fas";
+            string icon;
+            if (file.IsFolder)
+                icon = file.IsPublic ? "bi-folder" : "bi-folder-fill";
+            else
+                icon = file.IsPublic ? "bi-file-earmark" : "bi-file-earmark-fill";
             <tr>
                 @if (file.IsFolder)
                 {
 
                     <td>
-                        <i class="folder @icon fa-folder-open me-2" style="color: orange;" data-file-id="@file.Id"></i>
+                        <i class="folder @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
                         <a asp-controller="Folders" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
                     </td>
                     <td class="d-none d-lg-table-cell"></td>
@@ -52,11 +56,11 @@
                 else
                 {
                     <td>
-                        <i class="file @icon fa-file me-2" style="color: orange;" data-file-id="@file.Id"></i>
+                        <i class="file @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
                         <a asp-controller="Files" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
                         @if (file.Version > 1)
                         {
-                            <span class="badge badge-info ms-2">v@(file.Version)</span>
+                            <span class="badge text-light">v@(file.Version)</span>
                         }
                     </td>
                     <td class="d-none d-lg-table-cell">@file.GetFormattedSize()</td>
@@ -64,14 +68,14 @@
                 <td class="d-none d-lg-table-cell">@file.Updated.ToLocalTime().ToString("d")</td>
                 <td class="text-nowrap">
                     <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id"
-                   class="btn btn-primary btn-sm d-none d-md-inline">
-                        <i class="far fa-edit"></i>
+                       class="btn btn-outline-primary btn-sm d-none d-md-inline">
+                        <i class="bi bi-pencil-fill"></i>
                     </a>
                     @if (!file.IsFolder)
                     {
                         <a asp-controller="Files" asp-action="Download" asp-route-id="@file.Id"
-                   class="btn btn-primary btn-sm ms-2">
-                            <i class="fas fa-download"></i>
+                           class="btn btn-outline-primary btn-sm ms-2">
+                            <i class="bi bi-download"></i>
                         </a>
                     }
                 </td>
@@ -80,15 +84,15 @@
     </tbody>
 </table>
 
-@section StyleSheets{
+@section StyleSheets {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css"
-      integrity="sha512-jU/7UFiaW5UBGODEopEqnbIAHOI8fO6T99m7Tsmqs2gkdujByJfkCbbfPSN4Wlqlb9TGnsuC0YgUgWkRBK7B9A=="
-      crossorigin="anonymous" referrerpolicy="no-referrer" />
+          integrity="sha512-jU/7UFiaW5UBGODEopEqnbIAHOI8fO6T99m7Tsmqs2gkdujByJfkCbbfPSN4Wlqlb9TGnsuC0YgUgWkRBK7B9A=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
 }
-    @section Scripts{
+@section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"
-        integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         Dropzone.options.uploadForm = {
             uploadMultiple: true,
@@ -97,22 +101,22 @@
             // https://stackoverflow.com/questions/58815724/how-to-integrate-dropzone-js-with-asp-net-core-mvc
             paramName: () => "uploadedFiles",
             parallelUploads: 10,
-            queuecomplete: function() {
+            queuecomplete: function () {
                 location.reload();
             }
         };
-        $(function() {
+        $(function () {
             $("#uploadForm").hide();
             $("#newFolderForm").hide();
-            $("#uploadToggle").click(function() {
+            $("#uploadToggle").click(function () {
                 $("#uploadForm").toggle();
             });
-            $("#newFolderToggle").click(function() {
+            $("#newFolderToggle").click(function () {
                 $("#newFolderForm").toggle();
                 if ($("#newFolderForm").is(":visible"))
                     $("#newFolder").focus();
             });
-            $("#newFolder").keyup(function(event) {
+            $("#newFolder").keyup(function (event) {
                 var keycode = (event.keyCode ? event.keyCode : event.which);
                 var name = $(this).val();
                 if (keycode == "13" && name) {
@@ -120,26 +124,37 @@
                         url: "@Context.Request.PathBase/folders",
                         method: "post",
                         data: { name },
-                        success: function() {
+                        success: function () {
                             location.reload();
                         }
                     });
                 }
             });
-            $("#clearBtn").click(function() {
+            $("#clearBtn").click(function () {
                 $("#newFolder").val("");
             });
-            $(".file,.folder").click(function() {
+            var fileIcons = ["bi-folder-fill", "bi-folder", "bi-file-earmark-fill", "bi-file-earmark"];
+            var toggleIcons = function (element, icon1, icon2) {
+                if (element.hasClass(icon1)) {
+                    element.removeClass(icon1);
+                    element.addClass(icon2);
+                }
+                else if (element.hasClass(icon2)) {
+                    element.removeClass(icon2);
+                    element.addClass(icon1);
+                }
+            }
+            $(".file,.folder").click(function () {
                 var fileId = $(this).attr("data-file-id");
-                var value = $(this).hasClass("fas") ? "True" : "False";
+                var value = $(this).hasClass(fileIcons[0]) || $(this).hasClass(fileIcons[2]) ? "True" : "False";
                 $.ajax({
                     url: `@Context.Request.PathBase/files/${fileId}/IsPublic`,
                     method: "put",
                     data: { value },
                     context: $(this),
-                    success: function() {
-                        this.toggleClass("far");
-                        this.toggleClass("fas");
+                    success: function () {
+                        toggleIcons(this, fileIcons[0], fileIcons[1]);
+                        toggleIcons(this, fileIcons[2], fileIcons[3]);
                     }
                 });
             });

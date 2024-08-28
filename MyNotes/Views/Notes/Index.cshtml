@@ -5,7 +5,7 @@
 
 <form method="get" class="d-inline-flex mb-3">
     <input type="text" class="form-control me-2" id="term" name="term" value="@Context.Request.Query["term"]">
-    <button type="submit" class="btn btn-primary">Search</button>
+    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search"></i></button>
 </form>
 
 @if (Model.Count > 0)
@@ -18,18 +18,18 @@
                     <td>
                         @if (note.IsPublic)
                         {
-                            <i class="fab fa-creative-commons-share text-success"></i>
+                            <i class="bi bi-cc-circle text-success"></i>
                         }
                         else if (note.Published != null)
                         {
-                            <i class="fab fa-creative-commons-share text-warning"></i>
+                            <i class="bi bi-cc-circle text-warning"></i>
                         }
                         <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id" class="mr-3">@note.Subject</a>
                     </td>
                     <td class="d-none d-lg-table-cell">@note.Updated.ToString("d")</td>
                     <td class="d-none d-md-table-cell">
-                        <a asp-action="Edit" asp-route-id="@note.Id" class="btn btn-primary btn-sm">
-                            <i class="far fa-edit"></i>
+                        <a asp-action="Edit" asp-route-id="@note.Id" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil-fill"></i>
                         </a>
                     </td>
                 </tr>

@@ -18,7 +18,7 @@
                             <td>
                                 @if (note.IsPublic)
                                 {
-                                    <i class="fab fa-creative-commons-share text-success"></i>
+                                    <i class="bi bi-cc-circle text-success"></i>
                                 }
                                 <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id" class="mr-3">@note.Subject</a>
                             </td>
@@ -40,24 +40,28 @@
                 <tbody>
                     @foreach (var file in ViewBag.Files)
                     {
-                        var icon = file.IsPublic ? "far" : "fas";
+                        string icon;
+                        if (file.IsFolder)
+                            icon = file.IsPublic ? "bi-folder" : "bi-folder-fill";
+                        else
+                            icon = file.IsPublic ? "bi-file-earmark" : "bi-file-earmark-fill";
                         <tr>
                             @if (file.IsFolder)
                             {
 
                                 <td>
-                                    <i class="folder @icon fa-folder-open me-2" style="color: orange;" data-file-id="@file.Id"></i>
+                                    <i class="folder @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
                                     <a asp-controller="Folders" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
                                 </td>
                             }
                             else
                             {
                                 <td>
-                                    <i class="file @icon fa-file me-2" style="color: orange;" data-file-id="@file.Id"></i>
+                                    <i class="file @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
                                     <a asp-controller="Files" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
                                     @if (file.Version > 1)
                                     {
-                                        <span class="badge badge-info ml-2">v@(file.Version)</span>
+                                        <span class="badge text-light">v@(file.Version)</span>
                                     }
                                 </td>
                             }
@@ -65,8 +69,8 @@
                                 @if (!file.IsFolder)
                                 {
                                     <a asp-controller="Files" asp-action="Download" asp-route-id="@file.Id"
-                           class="btn btn-primary btn-sm">
-                                        <i class="fas fa-download"></i>
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-download"></i>
                                     </a>
                                 }
                             </td>
@@ -78,9 +82,9 @@
     </div>
 </div>
 
-@section Scripts{
+@section Scripts {
     <script>
-        $(function() {
+        $(function () {
             $("#searchAll").val("@Context.Request.Query["term"]");
         });
     </script>
