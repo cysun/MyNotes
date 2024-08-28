@@ -87,7 +87,7 @@
                     </td>
                     <td class="d-none d-lg-table-cell">@file.GetFormattedSize()</td>
                 }
-                <td class="d-none d-lg-table-cell">@file.Updated.ToLocalTime().ToString("d")</td>
+                <td class="d-none d-lg-table-cell text-nowrap">@file.Updated.ToLocalTime().ToString("d")</td>
                 <td class="text-nowrap">
                     @if (Context.User.Identity.IsAuthenticated)
                     {
