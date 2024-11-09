@@ -1,9 +1,3 @@
-@{
-    (string Style, string NavBg) light, dark;
-    light = ("https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cerulean/bootstrap.min.css", "bg-primary");
-    dark = ("https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/darkly/bootstrap.min.css", "bg-dark");
-    var currentTheme = Context.Request.Cookies["theme"] == "dark" ? dark : light;
-}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link id="themeCSS" rel="stylesheet" href="@currentTheme.Style" />
+    <link id="themeCSS" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cerulean/bootstrap.min.css" />
     @RenderSection("StyleSheets", required: false)
 </head>
 <body class="container-xl">
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark @currentTheme.NavBg">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
             <div class="container-fluid">
                 <a class="navbar-brand" href="@Context.Request.PathBase/">MyNotes</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
@@ -27,15 +21,6 @@
                         <li class="nav-item"><a class="nav-link" asp-controller="Notes" asp-action="Index">Notes</a></li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Files" asp-action="Index">Files</a></li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Blogs" asp-action="Index">Blogs</a></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                Theme
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="javascript:setLightTheme()">Light</a>
-                                <a class="dropdown-item" href="javascript:setDarkTheme()">Dark</a>
-                            </div>
-                        </li>
                     </ul>
                     <form asp-controller="Home" asp-action="Search" method="get" class="d-flex mb-2 mb-lg-0">
                         <div class="input-group me-3">
@@ -55,9 +40,8 @@
     <footer class="footer text-center text-muted mb-3">
         <div>
             Copyright &copy; Chengyu Sun 2020-2024.<br />
-            Styled with <a href="https://getbootstrap.com/">Bootstrap</a>,
-            <a href="https://bootswatch.com/">Bootswatch</a> themes, and
-            <a href="https://fontawesome.com/">Font Awesome</a> icons.<br />
+            Styled with <a href="https://getbootstrap.com/">Bootstrap</a> and
+            <a href="https://bootswatch.com/">Bootswatch</a> themes.<br />
             Favicon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a>
             from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
         </div>
@@ -68,24 +52,32 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
     <script>
+        function updateTheme() {
+            if (window.matchMedia("(prefers-color-scheme: light)").matches)
+                setLightTheme();
+            else setDarkTheme();
+        }
         function setDarkTheme() {
-            Cookies.set("theme", "dark", { expires: 21 });
-            $("#themeCSS").attr("href", "@dark.Style");
-            $("nav.navbar").removeClass("@light.NavBg").addClass("@dark.NavBg");
+            $("#themeCSS").attr(
+                "href",
+                "https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/darkly/bootstrap.min.css"
+            );
+            $("nav.navbar").removeClass("bg-primary").addClass("bg-dark");
         }
         function setLightTheme() {
-            Cookies.set("theme", "light", { expires: 21 });
-            $("#themeCSS").attr("href", "@light.Style");
-            $("nav.navbar").removeClass("@dark.NavBg").addClass("@light.NavBg");
+            $("#themeCSS").attr(
+                "href",
+                "https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cerulean/bootstrap.min.css"
+            );
+            $("nav.navbar").removeClass("bg-dark").addClass("bg-primary");
         }
         $(function () {
-            var theme = Cookies.get("theme");
-            if (theme == "dark")
-                setDarkTheme();
-            else if (theme == "light")
-                setLightTheme();
+            // Code from https://github.com/shaack/bootstrap-auto-dark-mode/blob/main/src/bootstrap-auto-dark-mode.js
+            window
+                .matchMedia("(prefers-color-scheme: light)")
+                .addEventListener("change", updateTheme);
+            updateTheme();
         });
     </script>
     @RenderSection("Scripts", required: false)
