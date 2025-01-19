@@ -46,9 +46,11 @@
     </div>
 </form>
 
+@section StyleSheets{
+    <link rel="stylesheet" href="~/lib/summernote/summernote-bs5.min.css" />
+}
 @section Scripts{
-    <script src="https://cdn.tiny.cloud/1/4jeuqf3mhgytuk82mowljcxt0pbcbem4ivn5xorph63kjcfg/tinymce/6/tinymce.min.js"
-            referrerpolicy="origin"></script>
+    <script src="~/lib/summernote/summernote-bs5.min.js"></script>
     <script>
         function setStatus(saved) {
             var status = $("#status").hasClass("btn-success");
@@ -75,29 +77,33 @@
             };
         })();
         $(function () {
-            tinymce.init({
-                selector: "textarea#Content",
-                plugins: "anchor autolink code image link lists searchreplace table visualblocks wordcount fullscreen",
-                menubar: false,
-                convert_urls: false,
-                browser_spellcheck: true,
-                toolbar: "styles fontfamily forecolor backcolor numlist bullist indent outdent hr link image media table code fullscreen",
-                setup: (editor) => {
-                    editor.on("change input paste undo redo", e => {
+            $("#Content").summernote({
+                height: 600,
+                callbacks: {
+                    onChange: function () {
                         setStatus(false);
                         delay(function () {
                             $.ajax({
                                 url: "@Context.Request.PathBase/notes/@Model.Id/content",
                                 method: "put",
-                                data: { value: editor.getContent() },
+                                data: { value: $("#Content").val() },
                                 success: function () {
                                     setStatus(true);
                                 }
                             });
                         }, 1000);
-                    });
+                    }
                 },
-                height: 700
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video', 'hr']],
+                    ['view', ['format', 'codeview', 'fullscreen']]
+                ]
             });
             $("#Subject").keyup(function () {
                 setStatus(false);

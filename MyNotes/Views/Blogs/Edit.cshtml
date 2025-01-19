@@ -19,19 +19,18 @@
     <button type="submit" class="btn btn-primary ms-2">Save</button>
 </form>
 
-@section Scripts{
-    <script src="https://cdn.tiny.cloud/1/4jeuqf3mhgytuk82mowljcxt0pbcbem4ivn5xorph63kjcfg/tinymce/6/tinymce.min.js"
-            referrerpolicy="origin"></script>
+@section StyleSheets {
+    <link rel="stylesheet" href="~/lib/summernote/summernote-bs5.min.css" />
+}
+@section Scripts {
+    <script src="~/lib/summernote/summernote-bs5.min.js"></script>
     <script>
         $(function () {
-            tinymce.init({
-                selector: "textarea#summary",
-                plugins: "autolink link",
-                menubar: false,
-                convert_urls: false,
-                browser_spellcheck: true,
-                toolbar: "bold italic underline link",
-                height: 250
+            $("#summary").summernote({
+                height: 200,
+                toolbar: [
+                    ['font', ['bold', 'italic', 'underline', 'link']],
+                ]
             });
         });
     </script>
