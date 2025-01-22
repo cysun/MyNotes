@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css">
-    <link id="themeCSS" rel="stylesheet" href="~/lib/bootswatch/cerulean/bootstrap.min.css" />
+    <link id="themeCSS" rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
     @RenderSection("StyleSheets", required: false)
 </head>
-<body class="container-xl">
+<body class="container-xl" data-bs-theme="light">
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
                 <a class="navbar-brand" href="@Context.Request.PathBase/">MyNotes</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
@@ -49,9 +49,8 @@
     </main>
     <footer class="footer text-center text-muted mb-3">
         <div>
-            Copyright &copy; Chengyu Sun 2020-2024.<br />
-            Styled with <a href="https://getbootstrap.com/">Bootstrap</a> and
-            <a href="https://bootswatch.com/">Bootswatch</a> themes.<br />
+            Copyright &copy; Chengyu Sun 2020-2025.<br />
+            Styled with <a href="https://getbootstrap.com/">Bootstrap</a>.
             Favicon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a>
             from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
         </div>
@@ -66,26 +65,14 @@
         }
         function updateTheme() {
           var theme = Cookies.get("theme");
-          if (theme == "dark") setDarkTheme();
-          else if (theme == "light") setLightTheme();
-          else {
-            if (window.matchMedia("(prefers-color-scheme: dark)").matches)
-              setDarkTheme();
-            else setLightTheme();
-          }
-        }
-        function setDarkTheme() {
-          $("#themeCSS").attr("href", "/lib/bootswatch/darkly/bootstrap.min.css");
-          $("nav.navbar").removeClass("bg-primary").addClass("bg-dark");
-        }
-        function setLightTheme() {
-          $("#themeCSS").attr("href", "/lib/bootswatch/cerulean/bootstrap.min.css");
-          $("nav.navbar").removeClass("bg-dark").addClass("bg-primary");
+          if( !theme || theme == "system" )
+            theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          $("body").attr("data-bs-theme", theme);
         }
         $(function () {
           // Code from https://github.com/shaack/bootstrap-auto-dark-mode/blob/main/src/bootstrap-auto-dark-mode.js
           window
-            .matchMedia("(prefers-color-scheme: light)")
+            .matchMedia("(prefers-color-scheme: dark)")
             .addEventListener("change", updateTheme);
           updateTheme();
         });

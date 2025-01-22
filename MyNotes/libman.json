@@ -20,6 +20,7 @@
       "library": "bootstrap@5.3.3",
       "destination": "wwwroot/lib/bootstrap/",
       "files": [
+        "css/bootstrap.min.css",
         "js/bootstrap.bundle.min.js"
       ]
     },
@@ -37,15 +38,6 @@
       "destination": "wwwroot/lib/jquery/",
       "files": [
         "jquery.min.js"
-      ]
-    },
-    {
-      "provider": "cdnjs",
-      "library": "bootswatch@5.3.3",
-      "destination": "wwwroot/lib/bootswatch/",
-      "files": [
-        "cerulean/bootstrap.min.css",
-        "darkly/bootstrap.min.css"
       ]
     },
     {
