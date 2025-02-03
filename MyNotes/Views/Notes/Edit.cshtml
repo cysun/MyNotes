@@ -46,11 +46,13 @@
     </div>
 </form>
 
-@section StyleSheets{
+@section StyleSheets {
     <link rel="stylesheet" href="~/lib/summernote/summernote-bs5.min.css" />
 }
-@section Scripts{
+@section Scripts {
     <script src="~/lib/summernote/summernote-bs5.min.js"></script>
+    <script src="~/lib/prettier/standalone.js"></script>
+    <script src="~/lib/prettier/plugins/html.js"></script>
     <script>
         function setStatus(saved) {
             var status = $("#status").hasClass("btn-success");
@@ -76,6 +78,24 @@
                 timer = setTimeout(callback, ms);
             };
         })();
+        // Code from https://github.com/summernote/summernote/issues/3409 with update using Prettier 3 and Bootstrap icon
+        var formatButton = function () {
+            var ui = $.summernote.ui;
+            var button = ui.button({
+                contents: "<i class='bi bi-card-text'></i>",
+                tooltip: "Format HTML",
+                click: async function () {
+                    if (prettier && prettierPlugins) {
+                        let content = await prettier.format($("#Content").summernote("code"), {
+                            parser: "html",
+                            plugins: prettierPlugins
+                        });
+                        $("#Content").summernote("code", content);
+                    }
+                }
+            });
+            return button.render();
+        };
         $(function () {
             $("#Content").summernote({
                 height: 600,
@@ -103,7 +123,10 @@
                     ['table', ['table']],
                     ['insert', ['link', 'picture', 'video', 'hr']],
                     ['view', ['format', 'codeview', 'fullscreen']]
-                ]
+                ],
+                buttons: {
+                    format: formatButton
+                }
             });
             $("#Subject").keyup(function () {
                 setStatus(false);
