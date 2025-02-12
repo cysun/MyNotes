@@ -181,7 +181,7 @@ namespace MyNotes.Controllers
                     file.IsPublic = bool.Parse(value);
                     break;
                 case "isfavorite":
-                    file.IsFavorite = bool.Parse(value);
+                    file.IsPinned = bool.Parse(value);
                     break;
                 default:
                     _logger.LogWarning("Unrecognized field: {field}", field);
@@ -210,8 +210,8 @@ namespace MyNotes.Models
 
         public bool IsFolder { get; set; }
 
-        [Display(Name = "Favorite")]
-        public bool IsFavorite { get; set; }
+        [Display(Name = "Pinned")]
+        public bool IsPinned { get; set; }
 
         [Display(Name = "Public")]
         public bool IsPublic { get; set; }

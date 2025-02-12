@@ -29,7 +29,7 @@ public class File
 
     public int AccessCount { get; set; }
 
-    public bool IsFavorite { get; set; }
+    public bool IsPinned { get; set; }
     public bool IsPublic { get; set; }
 
     public string GetFormattedSize()

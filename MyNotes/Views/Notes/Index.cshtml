@@ -1,39 +1,66 @@
-@model List<Note>
 @{
     ViewData["Title"] = "MyNotes - Notes";
+    List<Note> pinnedNotes = ViewBag.PinnedNotes;
+    List<Note> recentNotes = ViewBag.RecentNotes;
 }
 
-<form method="get" class="d-inline-flex mb-3">
+<form asp-action="Search" method="get" class="d-inline-flex mb-3">
     <input type="text" class="form-control me-2" id="term" name="term" value="@Context.Request.Query["term"]">
     <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search"></i></button>
 </form>
 
-@if (Model.Count > 0)
-{
-    <table class="table table-hover align-middle">
-        <tbody>
-            @foreach (var note in Model)
-            {
-                <tr>
-                    <td>
-                        @if (note.IsPublic)
+<div class="row row-cols-1 row-cols-lg-2 g-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="card">
+            <div class="card-header">Pinned Notes</div>
+            <div class="card-body">
+                @if (pinnedNotes.Count > 0)
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var note in pinnedNotes)
                         {
-                            <i class="bi bi-cc-circle text-success"></i>
+                            <li class="list-group-item">
+                                @if (note.IsPublic)
+                                {
+                                    <i class="bi bi-cc-circle text-success"></i>
+                                }
+                                <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a>
+                            </li>
                         }
-                        else if (note.Published != null)
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-7">
+        <div class="card">
+            <div class="card-header">Recent Notes</div>
+            <div class="card-body">
+                @if (recentNotes.Count > 0)
+                {
+                    <table class="table">
+                        @foreach (var note in recentNotes)
                         {
-                            <i class="bi bi-cc-circle text-warning"></i>
+                            <tr>
+                                <td>
+                                    @if (note.IsPublic)
+                                    {
+                                        <i class="bi bi-cc-circle text-success"></i>
+                                    }
+                                    <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a>
+                                </td>
+                                <td class="d-none d-lg-table-cell">
+                                    @note.Updated.ToString("d")
+                                </td>
+                            </tr>
                         }
-                        <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id" class="mr-3">@note.Subject</a>
-                    </td>
-                    <td class="d-none d-lg-table-cell">@note.Updated.ToString("d")</td>
-                    <td class="d-none d-md-table-cell">
-                        <a asp-action="Edit" asp-route-id="@note.Id" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-pencil-fill"></i>
-                        </a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+                    </table>
+                }
+                else
+                {
+                    <p>There was no note created or updated in the last three weeks.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

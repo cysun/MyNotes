@@ -26,4 +26,7 @@ public class Note
     public bool IsBlog { get; set; }
 
     public bool IsDeleted { get; set; }
+
+    public int? ParentId { get; set; }
+    public File Parent { get; set; }
 }

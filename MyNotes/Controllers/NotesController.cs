@@ -28,15 +28,13 @@ namespace MyNotes.Controllers
 
         public IActionResult Index(string term)
         {
-            List<Note> notes;
-
-            if (string.IsNullOrWhiteSpace(term))
-                notes = _notesService.GetRecentNotes();
-            else
-                notes = _notesService.SearchNotes(term);
-
-            return View(notes);
+            ViewBag.PinnedNotes = _notesService.GetPinnedNotes();
+            ViewBag.RecentNotes = _notesService.GetRecentNotes();
+            return View();
         }
+
+        public IActionResult Search(string term) =>
+            string.IsNullOrWhiteSpace(term) ? RedirectToAction("Index") : View(_notesService.SearchNotes(term));
 
         [HttpGet]
         public IActionResult Create()

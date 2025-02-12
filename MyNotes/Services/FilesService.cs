@@ -26,6 +26,13 @@ public class FilesService
             .ToList();
     }
 
+    public List<Models.File> GetPinnedFiles(bool publicOnly = false)
+    {
+        return _db.Files.Where(f => f.IsPinned && (f.IsPublic || !publicOnly))
+            .OrderBy(f => f.Name)
+            .ToList();
+    }
+
     public List<Models.File> GetFiles()
     {
         return _db.Files.Where(f => f.ParentId == null)

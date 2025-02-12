@@ -1,15 +1,17 @@
 @{
     ViewData["Title"] = "MyNotes";
+    List<Note> notes = ViewBag.PinnedNotes;
+    List<File> files = ViewBag.PinnedFiles;
 }
 <div class="row row-cols-1 row-cols-lg-2 g-4">
     <div class="col">
         <div class="card">
             <div class="card-header">Pinned Notes</div>
             <div class="card-body">
-                @if (ViewBag.PinnedNotes.Count > 0)
+                @if (notes.Count > 0)
                 {
                     <ul class="list-group list-group-flush">
-                        @foreach (var note in ViewBag.PinnedNotes)
+                        @foreach (var note in notes)
                         {
                             <li class="list-group-item">
                                 @if (note.IsPublic)
@@ -26,26 +28,36 @@
     </div>
     <div class="col">
         <div class="card">
-            <div class="card-header">Recent Notes</div>
+            <div class="card-header">Pinned Files</div>
             <div class="card-body">
-                @if (ViewBag.RecentNotes.Count > 0)
+                @if (files.Count > 0)
                 {
                     <ul class="list-group list-group-flush">
-                        @foreach (var note in ViewBag.RecentNotes)
+                        @foreach (var file in files)
                         {
+                            string icon;
+                            if (file.IsFolder)
+                                icon = file.IsPublic ? "bi-folder" : "bi-folder-fill";
+                            else
+                                icon = file.IsPublic ? "bi-file-earmark" : "bi-file-earmark-fill";
                             <li class="list-group-item">
-                                @if (note.IsPublic)
+                                @if (file.IsFolder)
                                 {
-                                    <i class="bi bi-cc-circle text-success"></i>
+                                    <i class="folder @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
+                                    <a asp-controller="Folders" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
                                 }
-                                <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a>
+                                else
+                                {
+                                    <i class="file @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
+                                    <a asp-controller="Files" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
+                                    @if (file.Version > 1)
+                                    {
+                                        <span class="badge text-light">v@(file.Version)</span>
+                                    }
+                                }
                             </li>
                         }
                     </ul>
-                }
-                else
-                {
-                    <p>There was no note created or updated in the last three weeks.</p>
                 }
             </div>
         </div>
