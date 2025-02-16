@@ -9,16 +9,18 @@ namespace MyNotes.Controllers;
 public class FoldersController : Controller
 {
     private readonly FilesService _filesService;
+    private readonly NotesService _notesService;
 
     private readonly IAuthorizationService _authorizationService;
 
     private readonly IMapper _mapper;
     private readonly ILogger<FoldersController> _logger;
 
-    public FoldersController(FilesService filesService, IAuthorizationService authorizationService,
-        IMapper mapper, ILogger<FoldersController> logger)
+    public FoldersController(FilesService filesService, NotesService notesService,
+        IAuthorizationService authorizationService, IMapper mapper, ILogger<FoldersController> logger)
     {
         _filesService = filesService;
+        _notesService = notesService;
         _authorizationService = authorizationService;
         _mapper = mapper;
         _logger = logger;
@@ -42,6 +44,8 @@ public class FoldersController : Controller
             folder.AccessCount++;
             _filesService.SaveChanges();
         }
+
+        ViewBag.Notes = _notesService.GetNotesInFolder(id);
 
         return View(folder);
     }

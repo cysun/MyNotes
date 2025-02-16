@@ -7,6 +7,14 @@
 <nav>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-action="Index">Notes</a></li>
+        @if (Model.Parent != null)
+        {
+            <li class="breadcrumb-item">
+                <a asp-controller="Folders" asp-action="View" asp-route-Id="@Model.ParentId">
+                    @Model.Parent.Name
+                </a>
+            </li>
+        }
         <li class="breadcrumb-item active me-auto">
             @if (Model.Published != null)
             {

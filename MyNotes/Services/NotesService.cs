@@ -12,25 +12,24 @@ public class NotesService
         _db = db;
     }
 
-    public List<Note> GetRecentNotes(bool publicOnly = false)
-    {
-        return _db.Notes.Where(n => DateTime.UtcNow.AddDays(-21) < n.Updated
-            && (n.Published < DateTime.UtcNow || !publicOnly))
-            .OrderByDescending(n => n.Updated)
-            .ToList();
-    }
+    public List<Note> GetRecentNotes(bool publicOnly = false) => _db.Notes.AsNoTracking()
+        .Where(n => DateTime.UtcNow.AddDays(-21) < n.Updated && (n.Published < DateTime.UtcNow || !publicOnly))
+        .OrderByDescending(n => n.Updated)
+        .ToList();
 
-    public List<Note> GetPinnedNotes(bool publicOnly = false)
-    {
-        return _db.Notes.Where(n => n.IsPinned && (n.Published < DateTime.UtcNow || !publicOnly))
-            .OrderBy(n => n.Subject)
-            .ToList();
-    }
+    public List<Note> GetPinnedNotes(bool publicOnly = false) => _db.Notes.AsNoTracking()
+        .Where(n => n.IsPinned && (n.Published < DateTime.UtcNow || !publicOnly))
+        .OrderBy(n => n.Subject)
+        .ToList();
 
-    public Note GetNote(int id)
-    {
-        return _db.Notes.Where(n => n.Id == id).SingleOrDefault();
-    }
+    public List<Note> GetNotesInFolder(int folderId) => _db.Notes.AsNoTracking()
+        .Where(n => n.ParentId == folderId)
+        .OrderBy(n => n.Subject)
+        .ToList();
+
+    public Note GetNote(int id) => _db.Notes.Where(n => n.Id == id)
+        .Include(n => n.Parent)
+        .SingleOrDefault();
 
     public void AddNote(Note note) => _db.Notes.Add(note);
 

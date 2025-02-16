@@ -19,6 +19,9 @@
         <li class="breadcrumb-item"><a asp-action="View" asp-route-id="@Model.Id">@Model.Subject</a></li>
         <li class="breadcrumb-item active me-auto">Edit</li>
         <li>
+            <button id="move" class="btn btn-outline-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#moveModal">
+                <i class="bi bi-folder-symlink-fill"></i>
+            </button>
             <button id="delete" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash-fill"></i></button>
         </li>
     </ol>
@@ -46,6 +49,25 @@
     </div>
 </form>
 
+<div id="moveModal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Move to <span id="currentFolder"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="folders" data-id="" class="list-group list-group-flush">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="doMove" type="button" class="btn btn-primary">Move</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section StyleSheets {
     <link rel="stylesheet" href="~/lib/summernote/summernote-bs5.min.css" />
 }
@@ -54,6 +76,39 @@
     <script src="~/lib/prettier/standalone.js"></script>
     <script src="~/lib/prettier/plugins/html.js"></script>
     <script>
+        var paths = []; // current path from root
+        var children; // children of the current folder
+        function getChildFolders() {
+            $.ajax({
+                url: "@Context.Request.PathBase/Folders/GetChildFolders",
+                data: paths[0].id ? { parentId: paths[0].id } : {},
+                success: function (results) {
+                    $("#currentFolder").text(paths[0].name);
+                    children = results.filter(r => r.id != @Model.Id);
+                    if (paths.length > 1)
+                        children.unshift({
+                            id: paths[1].id,
+                            name: ".."
+                        });
+                    var items = children.map(child => {
+                        var item = $(`<li class="child list-group-item" data-id="${child.id}">${child.name}</li>`);
+                        item.click(function () {
+                            $(".child").removeClass("active");
+                            $(this).addClass("active");
+                        });
+                        item.dblclick(function () {
+                            if ($(this).text() == "..")
+                                paths.shift();
+                            else
+                                paths.unshift(children.find(c => c.id == $(this).attr("data-id")));
+                            getChildFolders();
+                        });
+                        return item;
+                    });
+                    $("#folders").empty().append(items);
+                }
+            });
+        }
         function setStatus(saved) {
             var status = $("#status").hasClass("btn-success");
             if (status == saved) return;
@@ -184,6 +239,25 @@
                         $("#pin").toggleClass("btn-secondary").toggleClass("btn-success");
                     }
                 });
+            });
+            $("#moveModal").on("show.bs.modal", function () {
+                paths.unshift({
+                    id: null,
+                    name: "/"
+                });
+                getChildFolders();
+            });
+            $("#moveModal").on("hide.bs.modal", function () {
+                paths = [];
+                $("#folders").empty();
+            });
+            $("#doMove").click(function () {
+                var fileId = @Model.Id;
+                var url = `@Context.Request.PathBase/notes/move/${fileId}`;
+                var selected = $("li.child.active");
+                var parentId = selected.length == 1 ? selected.attr("data-id") : paths[0].id;
+                if (parentId) url += `?parentId=${parentId}`;
+                window.location.href = url;
             });
         });
     </script>

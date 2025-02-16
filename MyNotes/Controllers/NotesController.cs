@@ -11,16 +11,18 @@ namespace MyNotes.Controllers
     public class NotesController : Controller
     {
         private readonly NotesService _notesService;
+        private readonly FilesService _filesService;
 
         private readonly IAuthorizationService _authorizationService;
 
         private readonly IMapper _mapper;
         private readonly ILogger<NotesController> _logger;
 
-        public NotesController(NotesService notesService, IAuthorizationService authorizationService,
-            IMapper mapper, ILogger<NotesController> logger)
+        public NotesController(NotesService notesService, FilesService filesService,
+            IAuthorizationService authorizationService, IMapper mapper, ILogger<NotesController> logger)
         {
             _notesService = notesService;
+            _filesService = filesService;
             _authorizationService = authorizationService;
             _mapper = mapper;
             _logger = logger;
@@ -79,6 +81,27 @@ namespace MyNotes.Controllers
             if (note == null) return NotFound();
 
             return View(_mapper.Map<NoteInputModel>(note));
+        }
+
+        public IActionResult Move(int id, int? parentId)
+        {
+            if (id == parentId) return BadRequest();
+
+            var note = _notesService.GetNote(id);
+            if (note == null) return NotFound();
+
+            var parent = parentId != null ? _filesService.GetFile((int)parentId) : null;
+            if (parent != null && !parent.IsFolder)
+                return BadRequest();
+
+            _logger.LogInformation("Move {note} from {oldParent} to {newParent} .", note.Id, note.ParentId, parentId);
+            note.ParentId = parentId;
+            _notesService.SaveChanges();
+
+            if (parentId != null)
+                return RedirectToAction("View", "Folders", new { id = note.ParentId });
+            else
+                return RedirectToAction("Index", "Files");
         }
 
         public IActionResult Delete(int id)
