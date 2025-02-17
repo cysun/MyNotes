@@ -1,6 +1,7 @@
 @model NoteInputModel
 @{
     ViewData["Title"] = $"MyNotes - {Model.Subject}";
+    Note note = ViewBag.Note;
     var publishBtn = "btn-secondary";
     if (Model.Published != null)
     {
@@ -16,6 +17,12 @@
 <nav>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-action="Index">Notes</a></li>
+        @if (note.Parent != null)
+        {
+            <li class="breadcrumb-item">
+                <a asp-controller="Folders" asp-action="View" asp-route-id="@note.Parent.Id">@note.Parent.Name</a>
+            </li>
+        }
         <li class="breadcrumb-item"><a asp-action="View" asp-route-id="@Model.Id">@Model.Subject</a></li>
         <li class="breadcrumb-item active me-auto">Edit</li>
         <li>

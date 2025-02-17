@@ -39,9 +39,15 @@ namespace MyNotes.Controllers
             string.IsNullOrWhiteSpace(term) ? RedirectToAction("Index") : View(_notesService.SearchNotes(term));
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult Create(int? parentId)
         {
-            return View(new NoteInputModel());
+            if (parentId != null)
+                ViewBag.Parent = _filesService.GetFile(parentId.Value);
+
+            return View(new NoteInputModel
+            {
+                ParentId = parentId,
+            });
         }
 
         [HttpPost]
@@ -79,6 +85,8 @@ namespace MyNotes.Controllers
         {
             var note = _notesService.GetNote(id);
             if (note == null) return NotFound();
+
+            ViewBag.Note = note;
 
             return View(_mapper.Map<NoteInputModel>(note));
         }
@@ -169,5 +177,7 @@ namespace MyNotes.Models
 
         public string Summary { get; set; }
         public bool IsBlog { get; set; }
+
+        public int? ParentId { get; set; }
     }
 }

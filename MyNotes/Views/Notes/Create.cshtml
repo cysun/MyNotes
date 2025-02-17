@@ -1,11 +1,18 @@
 @model NoteInputModel
 @{
     ViewData["Title"] = "MyNotes - New Note";
+    File parent = ViewBag.Parent;
 }
 
 <nav>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-action="Index">Notes</a></li>
+        @if (parent != null)
+        {
+            <li class="breadcrumb-item">
+                <a asp-controller="Folders" asp-action="View" asp-route-id="@parent.Id">@parent.Name</a>
+            </li>
+        }
         <li class="breadcrumb-item active">New</li>
     </ol>
 </nav>
@@ -14,6 +21,7 @@
     <div class="mb-3">
         <input asp-for="Subject" class="form-control" required>
     </div>
+    <input asp-for="ParentId" type="hidden" />
     <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Cancel</a>
     <button type="submit" class="ms-2 btn btn-primary">Create</button>
 </form>

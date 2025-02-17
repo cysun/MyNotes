@@ -30,6 +30,9 @@
         <button id="uploadToggle" type="button" class="btn btn-outline-primary me-3">
             <i class="bi bi-upload"></i>
         </button>
+        <a asp-controller="Notes" asp-action="Create" asp-route-parentId="@Model.Id" class="btn btn-outline-primary me-3">
+            <i class="bi bi-clipboard-plus"></i>
+        </a>
         <button id="newFolderToggle" type="button" class="btn btn-outline-primary">
             <i class="bi bi-folder-plus"></i>
         </button>
@@ -59,6 +62,29 @@
         </tr>
     </thead>
     <tbody>
+        @foreach (var note in notes)
+        {
+            <tr>
+                <td>
+                    <i class="note @(note.IsPublic ? "bi-file-text" : "bi-file-text-fill") me-2" style="color: orange;" data-note-id="@note.Id"></i>
+                    <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a>
+                </td>
+                <td class="d-none d-lg-table-cell"></td>
+                <td class="d-none d-lg-table-cell">@note.Updated.ToLocalTime().ToString("d")</td>
+                <td class="text-nowrap">
+                    @if (Context.User.Identity.IsAuthenticated)
+                    {
+                        <button data-id="@note.Id" class="delete btn btn-outline-danger btn-sm me-2">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                        <a asp-controller="Notes" asp-action="Edit" asp-route-id="@note.Id"
+                           class="btn btn-outline-primary btn-sm me-2 d-none d-md-inline">
+                            <i class="bi bi-pencil-fill"></i>
+                        </a>
+                    }
+                </td>
+            </tr>
+        }
         @foreach (var file in Model.Children)
         {
             string icon;
@@ -105,29 +131,6 @@
                         <a asp-controller="Files" asp-action="Download" asp-route-id="@file.Id"
                            class="btn btn-outline-primary btn-sm">
                             <i class="bi bi-download"></i>
-                        </a>
-                    }
-                </td>
-            </tr>
-        }
-        @foreach (var note in notes)
-        {
-            <tr>
-                <td>
-                    <i class="note @(note.IsPublic ? "bi-file-text" : "bi-file-text-fill") me-2" style="color: orange;" data-note-id="@note.Id"></i>
-                    <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a>
-                </td>
-                <td class="d-none d-lg-table-cell"></td>
-                <td class="d-none d-lg-table-cell">@note.Updated.ToLocalTime().ToString("d")</td>
-                <td class="text-nowrap">
-                    @if (Context.User.Identity.IsAuthenticated)
-                    {
-                        <button data-id="@note.Id" class="delete btn btn-outline-danger btn-sm me-2">
-                            <i class="bi bi-trash-fill"></i>
-                        </button>
-                        <a asp-controller="Notes" asp-action="Edit" asp-route-id="@note.Id"
-                           class="btn btn-outline-primary btn-sm me-2 d-none d-md-inline">
-                            <i class="bi bi-pencil-fill"></i>
                         </a>
                     }
                 </td>
