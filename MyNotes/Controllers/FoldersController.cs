@@ -1,7 +1,7 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyNotes.Services;
+using File = MyNotes.Models.File;
 
 namespace MyNotes.Controllers;
 
@@ -12,18 +12,13 @@ public class FoldersController : Controller
     private readonly NotesService _notesService;
 
     private readonly IAuthorizationService _authorizationService;
-
-    private readonly IMapper _mapper;
-    private readonly ILogger<FoldersController> _logger;
-
+    
     public FoldersController(FilesService filesService, NotesService notesService,
-        IAuthorizationService authorizationService, IMapper mapper, ILogger<FoldersController> logger)
+        IAuthorizationService authorizationService)
     {
         _filesService = filesService;
         _notesService = notesService;
         _authorizationService = authorizationService;
-        _mapper = mapper;
-        _logger = logger;
     }
 
     [AllowAnonymous]
@@ -35,7 +30,7 @@ public class FoldersController : Controller
         if (!folder.IsPublic && !(await _authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded)
             return Forbid();
 
-        if (User.Identity.IsAuthenticated)
+        if (User.Identity?.IsAuthenticated is true)
         {
             ViewBag.Ancestors = _filesService.GetAncestors(folder);
         }
@@ -56,7 +51,7 @@ public class FoldersController : Controller
         if (string.IsNullOrWhiteSpace(name))
             return BadRequest();
 
-        var folder = new Models.File
+        var folder = new File
         {
             Name = name,
             ParentId = parentId,
@@ -68,7 +63,7 @@ public class FoldersController : Controller
         return Ok();
     }
 
-    public List<Models.File> GetChildFolders(int? parentId)
+    public List<File> GetChildFolders(int? parentId)
     {
         return _filesService.GetChildren(parentId, true);
     }

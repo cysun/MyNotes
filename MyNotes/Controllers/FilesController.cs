@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyNotes.Models;
 using MyNotes.Services;
+using File = MyNotes.Models.File;
 
 namespace MyNotes.Controllers
 {
@@ -14,11 +14,11 @@ namespace MyNotes.Controllers
 
         private readonly IAuthorizationService _authorizationService;
 
-        private readonly IMapper _mapper;
+        private readonly AppMapper _mapper;
         private readonly ILogger<FilesController> _logger;
 
         public FilesController(FilesService filesService, IAuthorizationService authorizationService,
-            IMapper mapper, ILogger<FilesController> logger)
+            AppMapper mapper, ILogger<FilesController> logger)
         {
             _filesService = filesService;
             _authorizationService = authorizationService;
@@ -28,7 +28,7 @@ namespace MyNotes.Controllers
 
         public IActionResult Index(string term)
         {
-            List<Models.File> files;
+            List<File> files;
 
             if (string.IsNullOrWhiteSpace(term))
                 files = _filesService.GetFiles();
@@ -45,7 +45,7 @@ namespace MyNotes.Controllers
             if (file == null) return NotFound();
 
             ViewBag.Ancestors = _filesService.GetAncestors(file);
-            return View(_mapper.Map<FileInputModel>(file));
+            return View(_mapper.Map(file));
         }
 
         [HttpPost]

@@ -1,5 +1,6 @@
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyNotes.Models;
+using File = MyNotes.Models.File;
 
 namespace MyNotes.Services;
 
@@ -8,10 +9,10 @@ public class FilesService
     private readonly AppDbContext _db;
     private readonly MinioService _minioService;
 
-    private readonly IMapper _mapper;
+    private readonly AppMapper _mapper;
     private readonly ILogger<FilesService> _logger;
 
-    public FilesService(AppDbContext db, MinioService minioService, IMapper mapper, ILogger<FilesService> logger)
+    public FilesService(AppDbContext db, MinioService minioService, AppMapper mapper, ILogger<FilesService> logger)
     {
         _db = db;
         _minioService = minioService;
@@ -19,33 +20,33 @@ public class FilesService
         _logger = logger;
     }
 
-    public List<Models.File> GetRecentFiles(bool publicOnly = false)
+    public List<File> GetRecentFiles(bool publicOnly = false)
     {
         return _db.Files.Where(f => DateTime.UtcNow.AddDays(-21) < f.Created && (f.IsPublic || f.IsPublic == publicOnly))
             .OrderByDescending(f => f.Updated)
             .ToList();
     }
 
-    public List<Models.File> GetPinnedFiles(bool publicOnly = false)
+    public List<File> GetPinnedFiles(bool publicOnly = false)
     {
         return _db.Files.Where(f => f.IsPinned && (f.IsPublic || !publicOnly))
             .OrderBy(f => f.Name)
             .ToList();
     }
 
-    public List<Models.File> GetFiles()
+    public List<File> GetFiles()
     {
         return _db.Files.Where(f => f.ParentId == null)
             .OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name)
             .ToList();
     }
 
-    public Models.File GetFile(int id)
+    public File GetFile(int id)
     {
         return _db.Files.Find(id);
     }
 
-    public Models.File GetFolder(int id)
+    public File GetFolder(int id)
     {
         var folder = _db.Files.Where(f => f.Id == id && f.IsFolder)
             .Include(f => f.Children)
@@ -62,40 +63,40 @@ public class FilesService
         return folder;
     }
 
-    public List<Models.File> GetAncestors(Models.File file)
+    public List<File> GetAncestors(File file)
     {
-        var ancestors = new List<Models.File>();
+        var ancestors = new List<File>();
 
         var parentId = file.ParentId;
         while (parentId != null)
         {
             var parent = _db.Files.Find(parentId);
             ancestors.Insert(0, parent);
-            parentId = parent.ParentId;
+            parentId = parent!.ParentId;
         }
 
         return ancestors;
     }
 
-    public List<Models.File> GetChildren(int? parentId, bool folderOnly = false)
+    public List<File> GetChildren(int? parentId, bool folderOnly = false)
     {
         return _db.Files.Where(f => f.ParentId == parentId && (f.IsFolder || !folderOnly))
             .OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name)
             .ToList();
     }
 
-    public Models.File GetFile(int? parentId, string name)
+    public File GetFile(int? parentId, string name)
     {
         return _db.Files.Where(f => f.ParentId == parentId && f.Name == name).FirstOrDefault();
     }
 
-    public async Task<Models.File> UploadFileAsync(int? parentId, IFormFile uploadedFile)
+    public async Task<File> UploadFileAsync(int? parentId, IFormFile uploadedFile)
     {
         string name = Path.GetFileName(uploadedFile.FileName);
         var file = GetFile(parentId, name);
         if (file == null)
         {
-            file = new Models.File
+            file = new File
             {
                 Name = name,
                 ContentType = uploadedFile.ContentType,
@@ -112,7 +113,7 @@ public class FilesService
         }
         else
         {
-            _db.FileHistories.Add(_mapper.Map<Models.FileHistory>(file));
+            _db.FileHistories.Add(_mapper.MapToFileHistory(file));
             file.ContentType = uploadedFile.ContentType;
             file.Size = uploadedFile.Length;
             file.Updated = file.Created = DateTime.UtcNow;
@@ -128,14 +129,19 @@ public class FilesService
         return file;
     }
 
-    public async Task<string> GetDownloadUrlAsync(Models.File file, int? version = null, bool inline = false) =>
-        await _minioService.GetDownloadUrlAsync(file, version, inline);
-
-    public void AddFolder(Models.File folder) => _db.Files.Add(folder);
-
-    public List<Models.File> SearchFiles(string term, bool publicOnly = false)
+    public async Task<string> GetDownloadUrlAsync(File file, int? version = null, bool inline = false)
     {
-        if (string.IsNullOrWhiteSpace(term)) return new List<Models.File>();
+        return await _minioService.GetDownloadUrlAsync(file, version, inline);
+    }
+
+    public void AddFolder(File folder)
+    {
+        _db.Files.Add(folder);
+    }
+
+    public List<File> SearchFiles(string term, bool publicOnly = false)
+    {
+        if (string.IsNullOrWhiteSpace(term)) return new List<File>();
 
         return _db.Files.FromSqlRaw("SELECT * FROM \"SearchFiles\"({0})", term)
             .Where(f => f.IsPublic || !publicOnly)
@@ -145,22 +151,22 @@ public class FilesService
 
     public async Task<int> DeleteFileAsync(int id)
     {
-        var file = _db.Files.Find(id);
-        if (file != null)
+        var file = await _db.Files.FindAsync(id);
+        if (file is null) return -1;
+
+        for (var i = 1; i < file.Version; ++i)
         {
-            for (int i = 1; i < file.Version; ++i)
+            await _minioService.DeleteFileAsync(id, i);
+            _db.FileHistories.Remove(new FileHistory
             {
-                await _minioService.DeleteFileAsync(id, i);
-                _db.FileHistories.Remove(new Models.FileHistory
-                {
-                    FileId = id,
-                    Version = i
-                });
-            }
+                FileId = id,
+                Version = i
+            });
         }
+
         await _minioService.DeleteFileAsync(id, file.Version);
         _db.Files.Remove(file);
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
 
         return file.Version;
     }

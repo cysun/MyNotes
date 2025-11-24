@@ -1,7 +1,5 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyNotes.Models;
 using MyNotes.Services;
 
 namespace MyNotes.Controllers;
@@ -11,9 +9,9 @@ public class BlogsController : Controller
 {
     private readonly NotesService _notesService;
 
-    private readonly IMapper _mapper;
+    private readonly AppMapper _mapper;
 
-    public BlogsController(NotesService notesService, IMapper mapper)
+    public BlogsController(NotesService notesService, AppMapper mapper)
     {
         _notesService = notesService;
         _mapper = mapper;
@@ -49,7 +47,7 @@ public class BlogsController : Controller
         var blog = _notesService.GetNote(id);
         if (blog == null) return NotFound();
 
-        return View(_mapper.Map<NoteInputModel>(blog));
+        return View(_mapper.Map(blog));
     }
 
     [HttpPost]
@@ -62,6 +60,6 @@ public class BlogsController : Controller
         blog.IsBlog = true;
         _notesService.SaveChanges();
 
-        return RedirectToAction("Edit", "Notes", new { id = id });
+        return RedirectToAction("Edit", "Notes", new { id });
     }
 }

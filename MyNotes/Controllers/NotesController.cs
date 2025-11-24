@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyNotes.Models;
@@ -15,11 +14,11 @@ namespace MyNotes.Controllers
 
         private readonly IAuthorizationService _authorizationService;
 
-        private readonly IMapper _mapper;
+        private readonly AppMapper _mapper;
         private readonly ILogger<NotesController> _logger;
 
         public NotesController(NotesService notesService, FilesService filesService,
-            IAuthorizationService authorizationService, IMapper mapper, ILogger<NotesController> logger)
+            IAuthorizationService authorizationService, AppMapper mapper, ILogger<NotesController> logger)
         {
             _notesService = notesService;
             _filesService = filesService;
@@ -55,7 +54,7 @@ namespace MyNotes.Controllers
         {
             if (!ModelState.IsValid) return View(input);
 
-            var note = _mapper.Map<Note>(input);
+            var note = _mapper.Map(input);
             note.Updated = note.Created = DateTime.UtcNow;
             _notesService.AddNote(note);
             _notesService.SaveChanges();
@@ -88,7 +87,7 @@ namespace MyNotes.Controllers
 
             ViewBag.Note = note;
 
-            return View(_mapper.Map<NoteInputModel>(note));
+            return View(_mapper.Map(note));
         }
 
         public IActionResult Move(int id, int? parentId)

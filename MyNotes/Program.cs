@@ -76,7 +76,7 @@ services.AddAuthorization(options =>
 
 services.AddRouting(options => options.LowercaseUrls = true);
 
-services.AddAutoMapper(config => config.AddProfile<MapperProfile>());
+services.AddSingleton<AppMapper>();
 
 services.AddScoped<NotesService>();
 
@@ -110,14 +110,16 @@ else
 app.UseSerilogRequestLogging();
 
 app.UsePathBase(configuration["Application:PathBase"]);
-app.UseStaticFiles();
+app.MapStaticAssets();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+        "default",
+        "{controller=Home}/{action=Index}/{id?}")
+    .WithStaticAssets();
+;
 
 // Run App
 

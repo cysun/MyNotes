@@ -3,7 +3,6 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "provider": "cdnjs",
       "library": "summernote@0.9.1",
       "destination": "wwwroot/lib/summernote/",
       "files": [
@@ -16,8 +15,7 @@
       ]
     },
     {
-      "provider": "cdnjs",
-      "library": "bootstrap@5.3.3",
+      "library": "bootstrap@5.3.8",
       "destination": "wwwroot/lib/bootstrap/",
       "files": [
         "css/bootstrap.min.css",
@@ -25,7 +23,6 @@
       ]
     },
     {
-      "provider": "cdnjs",
       "library": "js-cookie@3.0.5",
       "destination": "wwwroot/lib/js-cookie/",
       "files": [
@@ -33,7 +30,6 @@
       ]
     },
     {
-      "provider": "cdnjs",
       "library": "jquery@3.7.1",
       "destination": "wwwroot/lib/jquery/",
       "files": [
@@ -41,8 +37,7 @@
       ]
     },
     {
-      "provider": "cdnjs",
-      "library": "bootstrap-icons@1.11.3",
+      "library": "bootstrap-icons@1.13.1",
       "destination": "wwwroot/lib/bootstrap-icons/",
       "files": [
         "font/fonts/bootstrap-icons.woff",
@@ -52,7 +47,7 @@
     },
     {
       "provider": "unpkg",
-      "library": "prettier@3.4.2",
+      "library": "prettier@3.6.2",
       "destination": "wwwroot/lib/prettier/",
       "files": [
         "standalone.js",
