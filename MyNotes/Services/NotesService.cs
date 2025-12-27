@@ -14,12 +14,14 @@ public class NotesService
 
     public List<Note> GetRecentNotes(bool publicOnly = false) => _db.Notes.AsNoTracking()
         .Where(n => DateTime.UtcNow.AddDays(-21) < n.Updated && (n.Published < DateTime.UtcNow || !publicOnly))
+        .Include(n => n.Parent)
         .OrderByDescending(n => n.Updated)
         .ToList();
 
     public List<Note> GetPinnedNotes(bool publicOnly = false) => _db.Notes.AsNoTracking()
         .Where(n => n.IsPinned && (n.Published < DateTime.UtcNow || !publicOnly))
-        .OrderBy(n => n.Subject)
+        .Include(n => n.Parent)
+        .AsEnumerable().OrderBy(n => n.Parent?.Name ?? n.Subject)
         .ToList();
 
     public List<Note> GetNotesInFolder(int folderId) => _db.Notes.AsNoTracking()
@@ -47,6 +49,7 @@ public class NotesService
 
         return _db.Notes.FromSqlRaw("SELECT * FROM \"SearchNotes\"({0})", term)
             .Where(n => n.Published < DateTime.UtcNow || !publicOnly)
+            .Include(n => n.Parent)
             .ToList();
     }
 

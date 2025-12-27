@@ -1,10 +1,15 @@
-ALTER TABLE "Files" RENAME COLUMN "IsFavorite" TO "IsPinned";
+CREATE OR REPLACE FUNCTION "SearchNotes"(q varchar) RETURNS SETOF "Notes" AS $$
+BEGIN
+    RETURN QUERY SELECT n.* FROM "Notes" n, plainto_tsquery(q) query WHERE query @@ tsv
+      ORDER BY ts_rank_cd(tsv, query) DESC LIMIT 20;
+    RETURN;
+ END
+$$ LANGUAGE plpgsql;
 
-ALTER TABLE "Notes" ADD COLUMN "ParentId" integer;
-ALTER TABLE "Notes" ADD CONSTRAINT "FK_Notes_Files_ParentId" FOREIGN KEY ("ParentId") REFERENCES "Files" ("Id");
-
-CREATE INDEX "IX_Notes_ParentId" ON "Notes" ("ParentId");
-
-DELETE FROM "__EFMigrationsHistory";
-INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20250212193750_InitialSchema', '9.0.2');
+CREATE OR REPLACE FUNCTION "SearchFiles"(q varchar) RETURNS SETOF "Files" AS $$
+BEGIN
+    RETURN QUERY SELECT f.* FROM "Files" f, plainto_tsquery(q) query WHERE query @@ tsv
+      ORDER BY ts_rank_cd(tsv, query) DESC LIMIT 20;
+    RETURN;
+ END
+$$ LANGUAGE plpgsql;

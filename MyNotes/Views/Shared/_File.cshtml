@@ -1,0 +1,28 @@
+@model FileViewModel
+@{
+  var file = Model.File;
+  string controller, icon;
+  if (file.IsFolder)
+  {
+    controller = "Folders";
+    icon = file.IsPublic ? "bi-folder" : "bi-folder-fill";
+
+  }
+  else
+  {
+    controller = "Files";
+    icon = file.IsPublic ? "bi-file-earmark" : "bi-file-earmark-fill";
+  }
+}
+
+<i class="folder @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
+@if (Model.ShowParent && file.Parent != null)
+{
+  <a asp-controller="@controller" asp-action="View" asp-route-id="@file.Parent.Id">@file.Parent.Name</a>
+  <span>/</span>
+}
+<a asp-controller="@controller" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
+@if (file.Version > 1)
+{
+  <span class="badge text-light">v@(file.Version)</span>
+}

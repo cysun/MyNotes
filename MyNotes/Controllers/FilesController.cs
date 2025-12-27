@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyNotes.Models;
 using MyNotes.Services;
-using File = MyNotes.Models.File;
 
 namespace MyNotes.Controllers
 {
@@ -26,17 +25,15 @@ namespace MyNotes.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index(string term)
+        public IActionResult Index()
         {
-            List<File> files;
-
-            if (string.IsNullOrWhiteSpace(term))
-                files = _filesService.GetFiles();
-            else
-                files = _filesService.SearchFiles(term);
-
-            return View(files);
+            ViewBag.PinnedFiles = _filesService.GetPinnedFiles();
+            return View(_filesService.GetFiles());
         }
+
+        public IActionResult Search(string term) => string.IsNullOrWhiteSpace(term)
+            ? RedirectToAction("Index")
+            : View(_filesService.SearchFiles(term));
 
         [HttpGet]
         public IActionResult Edit(int id)

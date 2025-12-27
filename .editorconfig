@@ -7,13 +7,12 @@ indent_size = 2
 indent_size = 4
 insert_final_newline = true
 
-# Use file-scoped namespaces
+# Rider code style settings
 csharp_namespace_body = file_scoped
+csharp_keep_existing_attribute_arrangement = true
+csharp_style_prefer_primary_constructors = false
+resharper_convert_to_primary_constructor_highlighting = none
 
 # Suppress Mapperly warnings
 dotnet_diagnostic.RMG012.severity = none
 dotnet_diagnostic.RMG020.severity = none
-
-# Suppress Rider warnings
-csharp_style_prefer_primary_constructors = false
-resharper_convert_to_primary_constructor_highlighting = none

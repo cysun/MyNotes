@@ -2,7 +2,7 @@
     ViewData["Title"] = "MyNotes - Search";
 }
 <div class="row">
-    <div class="col-lg-6">
+    <div class="col-md-5 col-lg-4">
         <h4 class="text-center">Notes</h4>
         @if (ViewBag.Notes.Count == 0)
         {
@@ -16,11 +16,7 @@
                     {
                         <tr>
                             <td>
-                                @if (note.IsPublic)
-                                {
-                                    <i class="bi bi-cc-circle text-success"></i>
-                                }
-                                <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id" class="mr-3">@note.Subject</a>
+                              <partial name="_Note" model="new NoteViewModel { Note = note }"/>
                             </td>
                         </tr>
                     }
@@ -28,7 +24,7 @@
             </table>
         }
     </div>
-    <div class="col-lg-6">
+    <div class="col-md-7 col-lg-8">
         <h4 class="text-center">Files</h4>
         @if (ViewBag.Files.Count == 0)
         {
@@ -40,41 +36,20 @@
                 <tbody>
                     @foreach (var file in ViewBag.Files)
                     {
-                        string icon;
-                        if (file.IsFolder)
-                            icon = file.IsPublic ? "bi-folder" : "bi-folder-fill";
-                        else
-                            icon = file.IsPublic ? "bi-file-earmark" : "bi-file-earmark-fill";
-                        <tr>
-                            @if (file.IsFolder)
-                            {
-
-                                <td>
-                                    <i class="folder @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
-                                    <a asp-controller="Folders" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
-                                </td>
-                            }
-                            else
-                            {
-                                <td>
-                                    <i class="file @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
-                                    <a asp-controller="Files" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
-                                    @if (file.Version > 1)
-                                    {
-                                        <span class="badge text-light">v@(file.Version)</span>
-                                    }
-                                </td>
-                            }
-                            <td>
-                                @if (!file.IsFolder)
-                                {
-                                    <a asp-controller="Files" asp-action="Download" asp-route-id="@file.Id"
-                                       class="btn btn-outline-primary btn-sm">
-                                        <i class="bi bi-download"></i>
-                                    </a>
-                                }
-                            </td>
-                        </tr>
+                      <tr>
+                        <td>
+                          <partial name="_File" model="new FileViewModel { File = file }"/>
+                        </td>
+                        <td>
+                          @if (!file.IsFolder)
+                          {
+                            <a asp-controller="Files" asp-action="Download" asp-route-id="@file.Id"
+                               class="btn btn-outline-primary btn-sm">
+                              <i class="bi bi-download"></i>
+                            </a>
+                          }
+                        </td>
+                      </tr>
                     }
                 </tbody>
             </table>

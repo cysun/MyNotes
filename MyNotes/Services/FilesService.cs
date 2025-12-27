@@ -20,31 +20,24 @@ public class FilesService
         _logger = logger;
     }
 
-    public List<File> GetRecentFiles(bool publicOnly = false)
-    {
-        return _db.Files.Where(f => DateTime.UtcNow.AddDays(-21) < f.Created && (f.IsPublic || f.IsPublic == publicOnly))
-            .OrderByDescending(f => f.Updated)
-            .ToList();
-    }
+    public List<File> GetRecentFiles(bool publicOnly = false) => _db.Files.AsNoTracking()
+        .Where(f => DateTime.UtcNow.AddDays(-21) < f.Created && (f.IsPublic || f.IsPublic == publicOnly))
+        .Include(f => f.Parent)
+        .OrderByDescending(f => f.Updated)
+        .ToList();
 
-    public List<File> GetPinnedFiles(bool publicOnly = false)
-    {
-        return _db.Files.Where(f => f.IsPinned && (f.IsPublic || !publicOnly))
-            .OrderBy(f => f.Name)
-            .ToList();
-    }
+    public List<File> GetPinnedFiles(bool publicOnly = false) => _db.Files.AsNoTracking()
+        .Where(f => f.IsPinned && (f.IsPublic || !publicOnly))
+        .Include(f => f.Parent)
+        .AsEnumerable().OrderBy(f => f.Parent?.Name ?? f.Name)
+        .ToList();
 
-    public List<File> GetFiles()
-    {
-        return _db.Files.Where(f => f.ParentId == null)
-            .OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name)
-            .ToList();
-    }
+    public List<File> GetFiles() => _db.Files.AsNoTracking()
+        .Where(f => f.ParentId == null)
+        .OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name)
+        .ToList();
 
-    public File GetFile(int id)
-    {
-        return _db.Files.Find(id);
-    }
+    public File GetFile(int id) => _db.Files.Find(id);
 
     public File GetFolder(int id)
     {
@@ -145,6 +138,7 @@ public class FilesService
 
         return _db.Files.FromSqlRaw("SELECT * FROM \"SearchFiles\"({0})", term)
             .Where(f => f.IsPublic || !publicOnly)
+            .Include(f => f.Parent)
             .OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name)
             .ToList();
     }

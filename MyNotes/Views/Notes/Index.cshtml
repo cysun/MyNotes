@@ -10,8 +10,35 @@
 </form>
 
 <div class="row row-cols-1 row-cols-lg-2 g-4">
-    <div class="col-md-6 col-lg-5">
-        <div class="card">
+  <div class="col-md-6 col-lg-7">
+    <div class="card h-100">
+      <div class="card-header">Recent Notes</div>
+      <div class="card-body">
+        @if (recentNotes.Count > 0)
+        {
+          <table class="table">
+            @foreach (var note in recentNotes)
+            {
+              <tr>
+                <td>
+                  <partial name="_Note" model="new NoteViewModel { Note = note }"/>
+                </td>
+                <td class="d-none d-lg-table-cell">
+                  @note.Updated.ToString("d")
+                </td>
+              </tr>
+            }
+          </table>
+        }
+        else
+        {
+          <p>There was no note created or updated in the last three weeks.</p>
+        }
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-5">
+    <div class="card h-100">
             <div class="card-header">Pinned Notes</div>
             <div class="card-body">
                 @if (pinnedNotes.Count > 0)
@@ -20,45 +47,10 @@
                         @foreach (var note in pinnedNotes)
                         {
                             <li class="list-group-item">
-                                @if (note.IsPublic)
-                                {
-                                    <i class="bi bi-cc-circle text-success"></i>
-                                }
-                                <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a>
+                              <partial name="_Note" model="new NoteViewModel { Note = note }"/>
                             </li>
                         }
                     </ul>
-                }
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-lg-7">
-        <div class="card">
-            <div class="card-header">Recent Notes</div>
-            <div class="card-body">
-                @if (recentNotes.Count > 0)
-                {
-                    <table class="table">
-                        @foreach (var note in recentNotes)
-                        {
-                            <tr>
-                                <td>
-                                    @if (note.IsPublic)
-                                    {
-                                        <i class="bi bi-cc-circle text-success"></i>
-                                    }
-                                    <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a>
-                                </td>
-                                <td class="d-none d-lg-table-cell">
-                                    @note.Updated.ToString("d")
-                                </td>
-                            </tr>
-                        }
-                    </table>
-                }
-                else
-                {
-                    <p>There was no note created or updated in the last three weeks.</p>
                 }
             </div>
         </div>

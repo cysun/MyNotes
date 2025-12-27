@@ -1,88 +1,80 @@
 @model List<File>
 @{
     ViewData["Title"] = "MyNotes - Files";
+    List<File> pinnedFiles = ViewBag.PinnedFiles;
 }
-
 <div class="btn-toolbar mb-3">
-    <form method="get" class="d-inline-flex">
-        <input type="text" class="form-control me-2" id="term" name="term" value="@Context.Request.Query["term"]">
-        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search"></i></button>
-    </form>
-    @if (string.IsNullOrWhiteSpace(Context.Request.Query["term"]))
-    {
-        <button id="uploadToggle" type="button" class="btn btn-outline-primary ms-3">
-            <i class="bi bi-upload"></i>
-        </button>
-        <button id="newFolderToggle" type="button" class="btn btn-outline-primary ms-3">
-            <i class="bi bi-folder-plus"></i>
-        </button>
-        <div id="newFolderForm" class="input-group ms-2">
-            <input id="newFolder" type="text" class="form-control" style="width: 20em;">
-            <div class="input-group-text" id="clearBtn"><i class="bi bi-x-lg"></i></div>
-        </div>
-    }
+  <form asp-action="Search" method="get" class="d-inline-flex">
+    <input type="text" class="form-control me-2" id="term" name="term">
+    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search"></i></button>
+  </form>
+  @if (string.IsNullOrWhiteSpace(Context.Request.Query["term"]))
+  {
+    <button id="uploadToggle" type="button" class="btn btn-outline-primary ms-3">
+      <i class="bi bi-upload"></i>
+    </button>
+    <button id="newFolderToggle" type="button" class="btn btn-outline-primary ms-3">
+      <i class="bi bi-folder-plus"></i>
+    </button>
+    <div id="newFolderForm" class="input-group ms-2">
+      <input id="newFolder" type="text" class="form-control" style="width: 20em;">
+      <div class="input-group-text" id="clearBtn"><i class="bi bi-x-lg"></i></div>
+    </div>
+  }
 </div>
 
 <form id="uploadForm" asp-controller="Files" asp-action="Upload" class="dropzone"
       method="post" enctype="multipart/form-data"></form>
 
-<table class="table table-hover table-striped align-middle">
-    <thead>
+<div class="row row-cols-1 row-cols-lg-2 g-4">
+  <div class="col order-2 order-lg-1">
+    <table class="table table-hover table-striped align-middle">
+      <tbody>
+      @foreach (var file in Model)
+      {
         <tr>
-            <th>Name</th>
-            <th class="d-none d-lg-table-cell">Size</th>
-            <th class="d-none d-lg-table-cell">Updated</th>
-            <th></th>
+          <td>
+            <partial name="_File" model="new FileViewModel { File = file, ShowParent = false }"/>
+          </td>
+          <td class="d-none d-lg-table-cell">
+            @(!file.IsFolder ? file.GetFormattedSize() : "")
+          </td>
+          <td class="text-nowrap">
+            <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id" class="btn btn-outline-primary btn-sm">
+              <i class="bi bi-pencil-fill"></i>
+            </a>
+            @if (!file.IsFolder)
+            {
+              <a asp-controller="Files" asp-action="Download" asp-route-id="@file.Id"
+                 class="btn btn-outline-primary btn-sm ms-2">
+                <i class="bi bi-download"></i>
+              </a>
+            }
+          </td>
         </tr>
-    </thead>
-    <tbody>
-        @foreach (var file in Model)
-        {
-            string icon;
-            if (file.IsFolder)
-                icon = file.IsPublic ? "bi-folder" : "bi-folder-fill";
-            else
-                icon = file.IsPublic ? "bi-file-earmark" : "bi-file-earmark-fill";
-            <tr>
-                @if (file.IsFolder)
-                {
-
-                    <td>
-                        <i class="folder @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
-                        <a asp-controller="Folders" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
-                    </td>
-                    <td class="d-none d-lg-table-cell"></td>
-                }
-                else
-                {
-                    <td>
-                        <i class="file @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
-                        <a asp-controller="Files" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
-                        @if (file.Version > 1)
-                        {
-                            <span class="badge text-light">v@(file.Version)</span>
-                        }
-                    </td>
-                    <td class="d-none d-lg-table-cell text-nowrap">@file.GetFormattedSize()</td>
-                }
-                <td class="d-none d-lg-table-cell">@file.Updated.ToLocalTime().ToString("d")</td>
-                <td class="text-nowrap">
-                    <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id"
-                       class="btn btn-outline-primary btn-sm d-none d-md-inline">
-                        <i class="bi bi-pencil-fill"></i>
-                    </a>
-                    @if (!file.IsFolder)
-                    {
-                        <a asp-controller="Files" asp-action="Download" asp-route-id="@file.Id"
-                           class="btn btn-outline-primary btn-sm ms-2">
-                            <i class="bi bi-download"></i>
-                        </a>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+      }
+      </tbody>
+    </table>
+  </div>
+  @if (pinnedFiles.Count > 0)
+  {
+    <div class="col order-1 order-lg-2">
+      <div class="card">
+        <div class="card-header">Pinned Files</div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            @foreach (var file in pinnedFiles)
+            {
+              <li class="list-group-item">
+                <partial name="_File" model="new FileViewModel { File = file }"/>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  }
+</div>
 
 @section StyleSheets {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css"

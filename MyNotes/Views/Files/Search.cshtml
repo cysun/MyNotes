@@ -1,0 +1,50 @@
+@model List<File>
+@{
+  ViewData["Title"] = "MyNotes - Searcj Files";
+}
+<div class="btn-toolbar mb-3">
+  <form asp-action="Search" method="get" class="d-inline-flex">
+    <input type="text" class="form-control me-2" id="term" name="term" value="@Context.Request.Query["term"]">
+    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search"></i></button>
+  </form>
+</div>
+
+<table class="table table-hover table-striped align-middle">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th class="d-none d-lg-table-cell">Size</th>
+    <th class="d-none d-lg-table-cell">Updated</th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  @foreach (var file in Model)
+  {
+    <tr>
+      <td>
+        <partial name="_File" model="new FileViewModel { File = file }"/>
+      </td>
+      <td class="d-none d-lg-table-cell">
+        @(!file.IsFolder ? file.GetFormattedSize() : "")
+      </td>
+      <td class="d-none d-lg-table-cell">
+        @file.Updated.ToLocalTime().ToString("d")
+      </td>
+      <td class="text-nowrap">
+        <a asp-controller="Files" asp-action="Edit" asp-route-id="@file.Id"
+           class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-pencil-fill"></i>
+        </a>
+        @if (!file.IsFolder)
+        {
+          <a asp-controller="Files" asp-action="Download" asp-route-id="@file.Id"
+             class="btn btn-outline-primary btn-sm ms-2">
+            <i class="bi bi-download"></i>
+          </a>
+        }
+      </td>
+    </tr>
+  }
+  </tbody>
+</table>

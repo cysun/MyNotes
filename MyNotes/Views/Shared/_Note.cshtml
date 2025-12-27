@@ -1,0 +1,19 @@
+@model NoteViewModel
+@{
+  var note = Model.Note;
+}
+
+@if (note.IsPublic)
+{
+  <i class="bi bi-cc-circle text-success"></i>
+}
+else if (note.Published != null)
+{
+  <i class="bi bi-cc-circle text-warning"></i>
+}
+@if (Model.ShowParent && note.Parent != null)
+{
+  <a asp-controller="Folders" asp-action="View" asp-route-id="@note.Parent.Id">@note.Parent.Name</a>
+  <span>/</span>
+}
+<a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a>

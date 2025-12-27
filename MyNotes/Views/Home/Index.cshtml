@@ -5,7 +5,7 @@
 }
 <div class="row row-cols-1 row-cols-lg-2 g-4">
     <div class="col">
-        <div class="card">
+      <div class="card h-100">
             <div class="card-header">Pinned Notes</div>
             <div class="card-body">
                 @if (notes.Count > 0)
@@ -14,11 +14,7 @@
                         @foreach (var note in notes)
                         {
                             <li class="list-group-item">
-                                @if (note.IsPublic)
-                                {
-                                    <i class="bi bi-cc-circle text-success"></i>
-                                }
-                                <a asp-controller="Notes" asp-action="View" asp-route-id="@note.Id">@note.Subject</a>
+                              <partial name="_Note" model="new NoteViewModel { Note = note }"/>
                             </li>
                         }
                     </ul>
@@ -27,39 +23,21 @@
         </div>
     </div>
     <div class="col">
-        <div class="card">
-            <div class="card-header">Pinned Files</div>
-            <div class="card-body">
-                @if (files.Count > 0)
-                {
-                    <ul class="list-group list-group-flush">
-                        @foreach (var file in files)
-                        {
-                            string icon;
-                            if (file.IsFolder)
-                                icon = file.IsPublic ? "bi-folder" : "bi-folder-fill";
-                            else
-                                icon = file.IsPublic ? "bi-file-earmark" : "bi-file-earmark-fill";
-                            <li class="list-group-item">
-                                @if (file.IsFolder)
-                                {
-                                    <i class="folder @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
-                                    <a asp-controller="Folders" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
-                                }
-                                else
-                                {
-                                    <i class="file @icon me-2" style="color: orange;" data-file-id="@file.Id"></i>
-                                    <a asp-controller="Files" asp-action="View" asp-route-id="@file.Id">@file.Name</a>
-                                    @if (file.Version > 1)
-                                    {
-                                        <span class="badge text-light">v@(file.Version)</span>
-                                    }
-                                }
-                            </li>
-                        }
-                    </ul>
-                }
-            </div>
+      <div class="card h-100">
+        <div class="card-header">Pinned Files</div>
+        <div class="card-body">
+          @if (files.Count > 0)
+          {
+            <ul class="list-group list-group-flush">
+              @foreach (var file in files)
+              {
+                <li class="list-group-item">
+                  <partial name="_File" model="new FileViewModel { File = file }"/>
+                </li>
+              }
+            </ul>
+          }
         </div>
+      </div>
     </div>
 </div>
