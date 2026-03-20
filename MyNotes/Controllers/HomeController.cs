@@ -26,6 +26,7 @@ public class HomeController : Controller
     {
         bool isOwner = (await _authorizationService.AuthorizeAsync(User, "IsOwner")).Succeeded;
         ViewBag.PinnedNotes = _notesService.GetPinnedNotes(!isOwner);
+        ViewBag.RecentNotes = _notesService.GetRecentNotes(!isOwner);
         ViewBag.PinnedFiles = _filesService.GetPinnedFiles(!isOwner);
         return View();
     }

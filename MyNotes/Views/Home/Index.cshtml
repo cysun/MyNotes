@@ -1,27 +1,44 @@
 @{
     ViewData["Title"] = "MyNotes";
-    List<Note> notes = ViewBag.PinnedNotes;
+    List<Note> pinnedNotes = ViewBag.PinnedNotes;
+    List<Note> recentNotes = ViewBag.RecentNotes;
     List<File> files = ViewBag.PinnedFiles;
 }
 <div class="row row-cols-1 row-cols-lg-2 g-4">
-    <div class="col">
-      <div class="card h-100">
-            <div class="card-header">Pinned Notes</div>
-            <div class="card-body">
-                @if (notes.Count > 0)
-                {
-                    <ul class="list-group list-group-flush">
-                        @foreach (var note in notes)
-                        {
-                            <li class="list-group-item">
-                              <partial name="_Note" model="new NoteViewModel { Note = note }"/>
-                            </li>
-                        }
-                    </ul>
-                }
-            </div>
-        </div>
+  <div class="col">
+    <div class="card mb-2">
+      <div class="card-header">Recent Notes</div>
+      <div class="card-body">
+        @if (recentNotes.Count > 0)
+        {
+          <ul class="list-group list-group-flush">
+            @foreach (var note in recentNotes)
+            {
+              <li class="list-group-item">
+                <partial name="_Note" model="new NoteViewModel { Note = note }"/>
+              </li>
+            }
+          </ul>
+        }
+      </div>
     </div>
+    <div class="card">
+      <div class="card-header">Pinned Notes</div>
+      <div class="card-body">
+        @if (pinnedNotes.Count > 0)
+        {
+          <ul class="list-group list-group-flush">
+            @foreach (var note in pinnedNotes)
+            {
+              <li class="list-group-item">
+                <partial name="_Note" model="new NoteViewModel { Note = note }"/>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  </div>
     <div class="col">
       <div class="card h-100">
         <div class="card-header">Pinned Files</div>
