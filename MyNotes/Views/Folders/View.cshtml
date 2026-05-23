@@ -26,21 +26,24 @@
 
 @if (Context.User.Identity.IsAuthenticated)
 {
-    <div class="btn-toolbar mb-3">
-        <button id="uploadToggle" type="button" class="btn btn-outline-primary me-3">
-            <i class="bi bi-upload"></i>
-        </button>
-        <a asp-controller="Notes" asp-action="Create" asp-route-parentId="@Model.Id" class="btn btn-outline-primary me-3">
-            <i class="bi bi-clipboard-plus"></i>
-        </a>
-        <button id="newFolderToggle" type="button" class="btn btn-outline-primary">
-            <i class="bi bi-folder-plus"></i>
-        </button>
-        <div id="newFolderForm" class="input-group ms-2">
-            <input id="newFolder" type="text" class="form-control" style="width: 20em;">
-            <div class="input-group-text" id="clearBtn"><i class="bi bi-x-lg"></i></div>
-        </div>
+  <div class="btn-toolbar mb-3">
+    <a asp-controller="Files" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary me-3">
+      <i class="bi bi-pencil-fill"></i>
+    </a>
+    <button id="uploadToggle" type="button" class="btn btn-outline-primary me-3">
+      <i class="bi bi-upload"></i>
+    </button>
+    <a asp-controller="Notes" asp-action="Create" asp-route-parentId="@Model.Id" class="btn btn-outline-primary me-3">
+      <i class="bi bi-clipboard-plus"></i>
+    </a>
+    <button id="newFolderToggle" type="button" class="btn btn-outline-primary">
+      <i class="bi bi-folder-plus"></i>
+    </button>
+    <div id="newFolderForm" class="input-group ms-2">
+      <input id="newFolder" type="text" class="form-control" style="width: 20em;">
+      <div class="input-group-text" id="clearBtn"><i class="bi bi-x-lg"></i></div>
     </div>
+  </div>
 
     <form id="uploadForm" asp-controller="Files" asp-action="Upload" class="dropzone"
           method="post" enctype="multipart/form-data">

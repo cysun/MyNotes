@@ -37,25 +37,14 @@ namespace MyNotes.Controllers
         public IActionResult Search(string term) =>
             string.IsNullOrWhiteSpace(term) ? RedirectToAction("Index") : View(_notesService.SearchNotes(term));
 
-        [HttpGet]
         public IActionResult Create(int? parentId)
         {
-            if (parentId != null)
-                ViewBag.Parent = _filesService.GetFile(parentId.Value);
-
-            return View(new NoteInputModel
+            var note = new Note
             {
                 ParentId = parentId,
-            });
-        }
-
-        [HttpPost]
-        public IActionResult Create(NoteInputModel input)
-        {
-            if (!ModelState.IsValid) return View(input);
-
-            var note = _mapper.Map(input);
-            note.Updated = note.Created = DateTime.UtcNow;
+                Subject = "New Note",
+                Created = DateTime.UtcNow
+            };
             _notesService.AddNote(note);
             _notesService.SaveChanges();
 
