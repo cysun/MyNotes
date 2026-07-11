@@ -40,7 +40,10 @@ public class NotesService
         if (note.Content == null || note.Content.Length < 200)
             _db.Notes.Remove(note);
         else
+        {
             note.IsDeleted = true;
+            note.ParentId = null;
+        }
     }
 
     public List<Note> SearchNotes(string term, bool publicOnly = false)
